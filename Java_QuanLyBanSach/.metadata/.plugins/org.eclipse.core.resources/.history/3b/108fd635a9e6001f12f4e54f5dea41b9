@@ -1,0 +1,81 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import vn.DA_KNNN.Components.ColumnChart;
+import vn.DA_KNNN.Components.PieChart;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileOutputStream;
+
+public class RevenueView extends JPanel {
+
+    private static final long serialVersionUID = 1L;
+    private JTable revenueTable;
+    private DefaultTableModel tableModel;
+
+    /**
+     * Create the panel.
+     */
+    public RevenueView() {
+        setLayout(new BorderLayout());
+
+        // Tạo panel chứa biểu đồ
+        JPanel chartPanel = new JPanel();
+        chartPanel.setLayout(new GridLayout(1, 2));
+
+        PieChart pie = new PieChart();  // Biểu đồ tròn
+        ColumnChart column = new ColumnChart();  // Biểu đồ cột
+
+        chartPanel.add(pie);
+        chartPanel.add(column);
+        add(chartPanel, BorderLayout.NORTH);
+
+        // Tạo bảng doanh thu
+        String[] columnNames = {"Tháng", "Doanh thu (VNĐ)"};
+        Object[][] data = {
+                {"Tháng 1", 5000000},
+                {"Tháng 2", 7000000},
+                {"Tháng 3", 4500000},
+                {"Tháng 4", 8000000},
+                {"Tháng 5", 6500000},
+        };
+
+        tableModel = new DefaultTableModel(data, columnNames);
+        revenueTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(revenueTable);
+        add(scrollPane, BorderLayout.CENTER);
+
+        // Tạo nút xuất báo cáo
+        JButton btnExport = new JButton("In báo cáo doanh thu");
+        btnExport.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                exportToPDF();
+            }
+        });
+
+        // Tạo panel chứa nút
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(btnExport);
+        add(buttonPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * Xuất báo cáo doanh thu ra file PDF
+     */
+    private void exportToPDF() {
+   
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Báo cáo doanh thu");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(800, 600);
+        frame.add(new RevenueView());
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}

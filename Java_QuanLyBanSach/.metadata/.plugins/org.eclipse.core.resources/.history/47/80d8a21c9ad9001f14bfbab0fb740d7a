@@ -1,0 +1,80 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+public class LayoutView extends JPanel {
+
+    private JButton[] menuButtons;
+
+    public LayoutView() {
+        setBackground(new Color(60, 63, 65)); // Đặt màu nền
+        setLayout(new BorderLayout());
+
+        // Tiêu đề trên sidebar
+        JLabel dashboardLabel = new JLabel("QKT", SwingConstants.CENTER);
+        dashboardLabel.setFont(new Font("Tahoma", Font.BOLD, 36));
+        dashboardLabel.setForeground(Color.WHITE);
+        add(dashboardLabel, BorderLayout.NORTH);
+
+        // Các nút menu
+        JPanel buttonPanel = createMenuButtons();
+        add(buttonPanel, BorderLayout.CENTER);
+    }
+
+    private JPanel createMenuButtons() {
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 0, 0));
+        buttonPanel.setBackground(new Color(60, 63, 65));
+
+        // Tạo danh sách icon
+        List<ImageIcon> icons = loadIcons();
+
+        menuButtons = new JButton[2];
+        menuButtons[0] = new JButton("Dashboard", icons.isEmpty() ? null : icons.get(0));
+        menuButtons[1] = new JButton("Manage", icons.isEmpty() ? null : icons.get(1));
+
+        // Tùy chỉnh từng nút
+        for (JButton button : menuButtons) {
+            button.setBackground(new Color(100, 100, 100));
+            button.setForeground(Color.WHITE);
+            button.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            buttonPanel.add(button);
+        }
+
+        return buttonPanel;
+    }
+
+    private List<ImageIcon> loadIcons() {
+        List<ImageIcon> icons = new ArrayList<>();
+        try {
+            // Load icons từ thư mục resources
+            URL resourceUrl = getClass().getResource("/images");
+            if (resourceUrl != null) {
+                File folder = new File(resourceUrl.toURI());
+                File[] files = folder.listFiles((dir, name) -> name.toLowerCase().endsWith(".png"));
+                if (files != null) {
+                    for (File file : files) {
+                        ImageIcon originalIcon = new ImageIcon(file.getAbsolutePath());
+                        Image scaledImage = originalIcon.getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                        icons.add(new ImageIcon(scaledImage));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return icons;
+    }
+
+    public JButton[] getMenuButtons() {
+        return menuButtons;
+    }
+    
+    public static void main(String[] args) {
+		new LayoutView().setVisible(true);
+	}
+}

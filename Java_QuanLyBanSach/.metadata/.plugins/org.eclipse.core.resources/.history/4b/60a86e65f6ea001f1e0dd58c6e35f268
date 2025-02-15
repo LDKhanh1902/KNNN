@@ -1,0 +1,21 @@
+package vn.DA_KNNN.Model;
+
+public class User {
+	private static Employee loggedInUser; // Hoặc có thể dùng một class User nếu có
+
+	public static void setUser(Employee user) {
+		loggedInUser = user;
+	}
+
+	public static Employee getUser() {
+		return loggedInUser;
+	}
+
+	public static void logout() {
+		loggedInUser = null;
+	}
+	
+	public static String getName() {
+		return String.format("%s %s",loggedInUser.getLastName(),loggedInUser.getFirstName());
+	}
+}

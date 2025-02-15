@@ -1,0 +1,70 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class BookCatalogView extends JPanel {
+	private static final long serialVersionUID = 1L;
+
+	private JPanel pane;
+	private JButton btnBook, btnCategory, btnAuthor, btnPublisher;
+
+	public JButton getBtnBook() {
+		return btnBook;
+	}
+
+	public JButton getBtnCategory() {
+		return btnCategory;
+	}
+
+	public JButton getBtnAuthor() {
+		return btnAuthor;
+	}
+
+	public JButton getBtnPublisher() {
+		return btnPublisher;
+	}
+
+	public BookCatalogView() {
+		// Đặt layout chính
+		setLayout(new BorderLayout());
+
+		// Panel chứa nút danh mục sách
+		pane = new JPanel(new GridLayout(2, 2, 10, 10));
+		add(pane, BorderLayout.CENTER);
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Khởi tạo các nút danh mục
+		btnAuthor = new JButton("Tác giả");
+		btnAuthor.setFont(new Font("Tahoma", Font.BOLD, 20));
+		pane.add(btnAuthor);
+
+		btnBook = new JButton("Sách");
+		btnBook.setFont(new Font("Tahoma", Font.BOLD, 20));
+		pane.add(btnBook);
+
+		btnCategory = new JButton("Thể loại");
+		btnCategory.setFont(new Font("Tahoma", Font.BOLD, 20));
+		pane.add(btnCategory);
+
+		btnPublisher = new JButton("Nhà xuất bản");
+		btnPublisher.setFont(new Font("Tahoma", Font.BOLD, 20));
+		pane.add(btnPublisher);
+	}
+
+	/**
+	 * Hiển thị nội dung mới trong panel
+	 */
+	public void showContent(JPanel content) {
+		pane.removeAll(); // Xóa nội dung cũ
+		pane.setLayout(new BorderLayout()); // Chuyển sang BorderLayout để hiển thị panel con
+		pane.add(content, BorderLayout.CENTER);
+		revalidate();
+		repaint();
+	}
+}

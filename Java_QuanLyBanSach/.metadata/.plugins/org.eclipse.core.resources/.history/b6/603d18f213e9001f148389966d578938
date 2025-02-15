@@ -1,0 +1,91 @@
+package vn.DA_KNNN.Components;
+
+import org.apache.poi.xwpf.usermodel.*;
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+public class ReceiptExporter {
+    private String templatePath; // Đường dẫn file mẫu Word
+
+    public ReceiptExporter(String templatePath) {
+        this.templatePath = templatePath;
+    }
+
+    /**
+     * Tạo hóa đơn Word từ template với dữ liệu đầu vào.
+     * @param data: Map chứa dữ liệu thay thế
+     * @param outputPath: Đường dẫn file Word đầu ra
+     */
+    public void generateInvoice(Map<String, String> data, String outputPath, JPanel view) {
+        try {
+            // 1️⃣ Mở file Word mẫu
+            FileInputStream fis = new FileInputStream(templatePath);
+            XWPFDocument document = new XWPFDocument(fis);
+
+            // 2️⃣ Thay thế dữ liệu trong đoạn văn bản
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                replaceTextInParagraph(paragraph, data);
+            }
+
+            // 3️⃣ Chèn dữ liệu sản phẩm vào bảng
+            for (XWPFTable table : document.getTables()) {
+                if (table.getRows().size() > 1) { // Đảm bảo có ít nhất một dòng tiêu đề
+                    List<XWPFTableRow> rows = table.getRows();
+                    int rowCount = data.size() / 4; // Số lượng sản phẩm
+
+                    // Xóa các dòng cũ (nếu có)
+                    for (int i = rows.size() - 1; i > 0; i--) {
+                        table.removeRow(i);
+                    }
+
+                    // Thêm dữ liệu mới vào bảng
+                    for (int i = 1; i <= rowCount; i++) {
+                        XWPFTableRow newRow = table.createRow();
+                        newRow.getCell(0).setText(String.valueOf(i)); // STT
+                        newRow.getCell(1).setText(data.getOrDefault("book_" + i, "")); // Tên sách
+                        newRow.getCell(2).setText(data.getOrDefault("price_" + i, "")); // Giá
+                        newRow.getCell(3).setText(data.getOrDefault("qty_" + i, "")); // Số lượng
+                        newRow.getCell(4).setText(data.getOrDefault("total_" + i, "")); // Tổng giá
+                    }
+                    
+                    for(int i = rowCount; i <= table.getRows().size()-rowCount; i++) {
+                    	XWPFTableRow newRow = table.createRow();
+                        newRow.getCell(0).setText(String.valueOf(i)); // STT
+                        newRow.getCell(1).setText(""); // Tên sách
+                        newRow.getCell(2).setText(""); // Giá
+                        newRow.getCell(3).setText(""); // Số lượng
+                        newRow.getCell(4).setText(""); // Tổng giá
+                    }
+                }
+            }
+
+            // 4️⃣ Lưu file mới sau khi thay thế dữ liệu
+            FileOutputStream fos = new FileOutputStream(outputPath);
+            document.write(fos);
+            fos.close();
+            document.close();
+            fis.close();
+
+            JOptionPane.showMessageDialog(view, "Hóa đơn đã được tạo!","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ✅ Hàm thay thế văn bản trong đoạn văn bản Word
+    private void replaceTextInParagraph(XWPFParagraph paragraph, Map<String, String> data) {
+        for (XWPFRun run : paragraph.getRuns()) {
+            String text = run.getText(0);
+            if (text != null) {
+                for (Map.Entry<String, String> entry : data.entrySet()) {
+                    text = text.replace("{{" + entry.getKey() + "}}", entry.getValue());
+                }
+                run.setText(text, 0);
+            }
+        }
+    }
+}

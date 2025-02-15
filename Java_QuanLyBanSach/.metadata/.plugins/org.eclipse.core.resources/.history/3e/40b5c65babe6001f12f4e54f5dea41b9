@@ -1,0 +1,149 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import org.jdatepicker.impl.*;
+import org.jfree.chart.*;
+import org.jfree.chart.plot.*;
+import org.jfree.data.category.DefaultCategoryDataset;
+import org.jfree.data.general.DefaultPieDataset;
+
+import vn.DA_KNNN.Components.DateLabelFormatter;
+
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.FileOutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Properties;
+
+public class RevenueView extends JPanel {
+    private static final long serialVersionUID = 1L;
+    private JTable revenueTable;
+    private DefaultTableModel revenueModel;
+    private JDatePickerImpl startDatePicker, endDatePicker;
+    private JLabel lblTotalRevenue;
+
+    public RevenueView() {
+        setLayout(new BorderLayout());
+
+        // **1. Bộ lọc thời gian**
+        JPanel filterPanel = new JPanel();
+        filterPanel.add(new JLabel("Từ ngày:"));
+        startDatePicker = createDatePicker();
+        filterPanel.add(startDatePicker);
+        filterPanel.add(new JLabel("Đến ngày:"));
+        endDatePicker = createDatePicker();
+        filterPanel.add(endDatePicker);
+        JButton btnFilter = new JButton("Lọc");
+        filterPanel.add(btnFilter);
+        add(filterPanel, BorderLayout.NORTH);
+
+        // **2. Biểu đồ Pie - Thể loại sách bán chạy**
+        JPanel chartPanel = new JPanel();
+        chartPanel.setLayout(new GridLayout(1, 3));
+        chartPanel.add(createPieChartPanel());
+        chartPanel.add(createBarChartPanel());
+        chartPanel.add(createLineChartPanel());
+        add(chartPanel, BorderLayout.CENTER);
+
+        // **3. Bảng doanh thu theo tháng**
+        String[] columns = {"Tháng", "Doanh thu (VNĐ)"};
+        Object[][] data = {
+                {"Tháng 1", 12000000}, {"Tháng 2", 15000000},
+                {"Tháng 3", 18000000}, {"Tháng 4", 20000000}
+        };
+        revenueModel = new DefaultTableModel(data, columns);
+        revenueTable = new JTable(revenueModel);
+        add(new JScrollPane(revenueTable), BorderLayout.WEST);
+
+        // **4. Tổng doanh thu**
+        JPanel summaryPanel = new JPanel();
+        lblTotalRevenue = new JLabel("Tổng doanh thu: 65,000,000 VNĐ");
+        summaryPanel.add(lblTotalRevenue);
+        add(summaryPanel, BorderLayout.SOUTH);
+
+        // **5. Các nút chức năng**
+        JButton btnExport = new JButton("In báo cáo");
+        JButton btnExit = new JButton("Thoát");
+        summaryPanel.add(btnExport);
+        summaryPanel.add(btnExit);
+
+        // **6. Xử lý sự kiện**
+        btnExport.addActionListener(e -> exportToPDF());
+        btnExit.addActionListener(e -> System.exit(0));
+    }
+
+    /**
+     * Tạo Date Picker
+     */
+    private JDatePickerImpl createDatePicker() {
+        Properties properties = new Properties();
+        properties.put("text.today", "Hôm nay");
+        properties.put("text.month", "Tháng");
+        properties.put("text.year", "Năm");
+
+        UtilDateModel model = new UtilDateModel();
+        JDatePanelImpl datePanel = new JDatePanelImpl(model, properties);
+        return new JDatePickerImpl(datePanel, new DateLabelFormatter());
+    }
+
+    /**
+     * Biểu đồ tròn - Thể loại sách bán chạy
+     */
+    private JPanel createPieChartPanel() {
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Tiểu thuyết", 120);
+        dataset.setValue("Kinh tế", 90);
+        dataset.setValue("Khoa học", 50);
+        dataset.setValue("Truyện tranh", 150);
+
+        JFreeChart chart = ChartFactory.createPieChart("Thể loại sách bán chạy", dataset, true, true, false);
+        return new ChartPanel(chart);
+    }
+
+    /**
+     * Biểu đồ cột - Doanh thu theo tháng
+     */
+    private JPanel createBarChartPanel() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(12000000, "Doanh thu", "Tháng 1");
+        dataset.addValue(15000000, "Doanh thu", "Tháng 2");
+        dataset.addValue(18000000, "Doanh thu", "Tháng 3");
+        dataset.addValue(20000000, "Doanh thu", "Tháng 4");
+
+        JFreeChart chart = ChartFactory.createBarChart("Doanh thu theo tháng", "Tháng", "Doanh thu (VNĐ)", dataset);
+        return new ChartPanel(chart);
+    }
+
+    /**
+     * Biểu đồ đường - Xu hướng doanh thu
+     */
+    private JPanel createLineChartPanel() {
+        DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+        dataset.addValue(10000000, "Doanh thu", "Tháng 1");
+        dataset.addValue(12000000, "Doanh thu", "Tháng 2");
+        dataset.addValue(15000000, "Doanh thu", "Tháng 3");
+        dataset.addValue(18000000, "Doanh thu", "Tháng 4");
+
+        JFreeChart chart = ChartFactory.createLineChart("Xu hướng doanh thu", "Tháng", "Doanh thu (VNĐ)", dataset);
+        return new ChartPanel(chart);
+    }
+
+    /**
+     * Xuất báo cáo PDF
+     */
+    private void exportToPDF() {
+
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Thống kê doanh thu");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(1000, 700);
+        frame.add(new RevenueView());
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}

@@ -1,0 +1,38 @@
+package vn.DA_KNNN.View;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+
+import vn.DA_KNNN.Components.ReceiptExporter;
+
+public class Test {
+    public static void main(String[] args) {
+        // Đường dẫn tới mẫu hóa đơn Word
+        String templatePath = "C:\\Users\\KHANH\\OneDrive\\Documents\\template_bill.docx";
+        // Đường dẫn tới file đầu ra
+        String outputPath = "C:\\Users\\KHANH\\OneDrive\\Documents\\invoice.docx";
+        
+        // Dữ liệu thay thế cho template
+        Map<String, String> data = new HashMap<>();
+        data.put("sale_date", "12/02/2025");
+        data.put("invoice_id", "INV12345");
+        data.put("book_1", "Java Programming");
+        data.put("price_1", "200,000");
+        data.put("qty_1", "2");
+        data.put("total_1", "400,000");
+        data.put("book_2", "Python Programming");
+        data.put("price_2", "250,000");
+        data.put("qty_2", "1");
+        data.put("total_2", "250,000");
+        // Continue adding data for the other books...
+        
+        data.put("grand_total", "10,000,000");
+        
+        // Tạo một đối tượng ReceiptExporter và gọi phương thức generateInvoice để tạo hóa đơn
+        ReceiptExporter exporter = new ReceiptExporter(templatePath);
+        exporter.generateInvoice(data, outputPath, new JPanel()); // View có thể là một JPanel nếu cần
+    }
+}

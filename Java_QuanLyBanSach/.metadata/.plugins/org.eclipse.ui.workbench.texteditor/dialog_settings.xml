@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<item key="hasShownOverlayPopupBefore" value="true"/>
+	<item key="replaceBarOpen" value="true"/>
+	<list key="searchhistory">
+		<item value="System"/>
+		<item value="pay"/>
+		<item value="Publisher"/>
+		<item value="Customer"/>
+		<item value="return null;"/>
+		<item value="Book"/>
+		<item value="Object"/>
+		<item value="\r\n&quot;"/>
+		<item value="Category"/>
+		<item value="Author"/>
+		<item value="return null"/>
+		<item value="fetchSingleValue"/>
+		<item value="table"/>
+		<item value="btnCreateId"/>
+		<item value="cmbCategory"/>
+	</list>
+	<list key="replacehistory">
+		<item value="Customer"/>
+		<item value="Employee"/>
+		<item value="void"/>
+		<item value="Publisher"/>
+		<item value="Category"/>
+		<item value="Author"/>
+	</list>
+	<section name="org.eclipse.ui.texteditor.GotoLineAction$GotoLineDialog_dialogBounds">
+		<item key="DIALOG_X_ORIGIN" value="165"/>
+		<item key="DIALOG_Y_ORIGIN" value="344"/>
+	</section>
+</section>

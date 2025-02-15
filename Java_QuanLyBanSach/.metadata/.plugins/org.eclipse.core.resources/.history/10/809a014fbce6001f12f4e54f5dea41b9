@@ -1,0 +1,135 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import vn.DA_KNNN.Components.PieChart;
+import vn.DA_KNNN.Components.ColumnChart;
+import java.awt.*;
+
+public class MainView extends JPanel {
+    private static final long serialVersionUID = 1L;
+
+    public MainView() {
+        setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
+
+        // **📌 Nội dung chính**
+        JPanel mainContent = new JPanel(new BorderLayout(10, 10));
+        add(mainContent, BorderLayout.CENTER);
+
+        // **📌 Header (Trên cùng)**
+        JPanel headerPanel = createHeader();
+        mainContent.add(headerPanel, BorderLayout.NORTH);
+
+        // **📌 Thông tin tổng quan**
+        JPanel infoPanel = createInfoCards();
+        infoPanel.setMaximumSize(new Dimension(200, ABORT));;
+        mainContent.add(infoPanel, BorderLayout.CENTER);
+
+        // **📌 Khu vực biểu đồ**
+        JPanel chartPanel = createChartPanel();
+        mainContent.add(chartPanel, BorderLayout.SOUTH);
+
+        // **📌 Footer**
+        JPanel footerPanel = createFooter();
+        add(footerPanel, BorderLayout.SOUTH);
+    }
+
+    /**
+     * **📌 Header - Thông tin User và Doanh thu**
+     */
+    private JPanel createHeader() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(30, 144, 255));
+        headerPanel.setPreferredSize(new Dimension(getWidth(), 60));
+
+        // 📌 Tiêu đề (Căn giữa)
+        JLabel title = new JLabel("📚 Hệ thống Quản lý Bán Sách", SwingConstants.CENTER);
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font("Tahoma", Font.BOLD, 18));
+        headerPanel.add(title, BorderLayout.CENTER);
+
+        // 📌 Thông tin User (Dịch vào trong)
+        JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        userPanel.setOpaque(false); // Để giữ màu nền trong suốt
+        JLabel userInfo = new JLabel("👤 Xin chào, Nguyễn Văn A");
+        userInfo.setForeground(Color.WHITE);
+        userInfo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        userPanel.add(userInfo);
+
+        headerPanel.add(userPanel, BorderLayout.EAST);
+
+        return headerPanel;
+    }
+
+    /**
+     * **📌 Thông tin Tổng quan**
+     */
+    private JPanel createInfoCards() {
+        JPanel infoPanel = new JPanel(new GridLayout(1, 4, 10, 10));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        infoPanel.add(createInfoCard("📚 Số lượng sách: 120"));
+        infoPanel.add(createInfoCard("👥 Số nhân viên: 10"));
+        infoPanel.add(createInfoCard("🛍️ Số khách hàng: 250"));
+        infoPanel.add(createInfoCard("💰 Tổng doanh thu: 5.000.000 VNĐ"));
+
+        return infoPanel;
+    }
+
+    private JPanel createInfoCard(String text) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        card.setBackground(Color.WHITE);
+        card.setPreferredSize(new Dimension(100, 50));
+
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        card.add(label, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    /**
+     * **📌 Khu vực Biểu đồ**
+     */
+    private JPanel createChartPanel() {
+        JPanel chartPanel = new JPanel(new GridLayout(1, 2, 10, 10));
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        PieChart pieChart = new PieChart(); // Biểu đồ loại sách bán chạy
+        ColumnChart columnChart = new ColumnChart(); // Biểu đồ doanh thu theo tháng
+
+        chartPanel.add(pieChart);
+        pieChart.setLayout(new CardLayout(0, 0));
+        chartPanel.add(columnChart);
+
+        return chartPanel;
+    }
+
+    /**
+     * **📌 Footer**
+     */
+    private JPanel createFooter() {
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        footerPanel.setPreferredSize(new Dimension(getWidth(), 40));
+        footerPanel.setBackground(new Color(70, 70, 70));
+
+        JLabel footerLabel = new JLabel("© 2025 Hệ thống Quản lý Bán Sách - Nhóm 8");
+        footerLabel.setForeground(Color.WHITE);
+        footerPanel.add(footerLabel);
+
+        return footerPanel;
+    }
+
+    /**
+     * **📌 Chạy ứng dụng**
+     */
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("Hệ thống Quản lý Bán Sách");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(1200, 700);
+        frame.getContentPane().add(new MainView());
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}

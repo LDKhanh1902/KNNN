@@ -1,0 +1,243 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+
+import java.awt.*;
+
+public class PublisherView extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+
+	// Khai báo các thành phần giao diện
+	private JLabel lblPublisherId, lblPublisherName, lblAddress, lblContact;
+	private JTextField txtPublisherName, txtAddress, txtContact, txtFind;
+	private JTable publisherTable;
+	private DefaultTableModel data;
+	private JButton btnAdd, btnEdit, btnDelete, btnFind;
+	private JPanel panel;
+	private JPanel panelPublisherId;
+	private JTextField txtPublisherId;
+	private JButton btnCreateId;
+
+	public JTextField getTxtPublisherId() {
+		return txtPublisherId;
+	}
+
+	public JTextField getTxtPublisherName() {
+		return txtPublisherName;
+	}
+
+	public JTextField getTxtAddress() {
+		return txtAddress;
+	}
+
+	public JTextField getTxtContact() {
+		return txtContact;
+	}
+
+	public JTextField getTxtFind() {
+		return txtFind;
+	}
+
+	public JTable getPublisherTable() {
+		return publisherTable;
+	}
+
+	public DefaultTableModel getData() {
+		return data;
+	}
+
+	public JButton getBtnAdd() {
+		return btnAdd;
+	}
+
+	public JButton getBtnEdit() {
+		return btnEdit;
+	}
+
+	public JButton getBtnDelete() {
+		return btnDelete;
+	}
+
+	public JButton getBtnFind() {
+		return btnFind;
+	}
+
+	public JButton getBtnCreateId() {
+		return btnCreateId;
+	}
+
+	public void setData(DefaultTableModel data) {
+		this.data = data;
+		this.publisherTable.setModel(data);
+	}
+
+	public PublisherView() {
+		setLayout(new BorderLayout());
+
+		// Panel trên cùng chứa các trường nhập liệu
+		JPanel inputPanel = new JPanel();
+		inputPanel.setBorder(
+				BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK), "Thông tin nhà xuất bản",
+						TitledBorder.LEFT, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 14), Color.BLACK));
+		GridBagLayout gbl_inputPanel = new GridBagLayout();
+		gbl_inputPanel.rowWeights = new double[] { 1.0, 0.0, 0.0, 0.0 };
+		gbl_inputPanel.columnWeights = new double[] { 0.0, 1.0 };
+		inputPanel.setLayout(gbl_inputPanel);
+
+		// Các nhãn và trường nhập liệu
+		lblPublisherId = new JLabel("Mã nhà xuất bản:");
+		lblPublisherId.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		lblPublisherName = new JLabel("Tên nhà xuất bản:");
+		lblPublisherName.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtPublisherName = new JTextField(20);
+		txtPublisherName.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblAddress = new JLabel("Địa chỉ:");
+		lblAddress.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtAddress = new JTextField(20);
+		txtAddress.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		lblContact = new JLabel("Liên hệ:");
+		lblContact.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		txtContact = new JTextField(20);
+		txtContact.setFont(new Font("Tahoma", Font.PLAIN, 20));
+
+		// Sắp xếp các thành phần trong inputPanel
+		GridBagConstraints gbc;
+
+		// Dòng 1: Mã nhà xuất bản
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0; // Cột đầu tiên
+		gbc.gridy = 0; // Dòng đầu tiên
+		inputPanel.add(lblPublisherId, gbc);
+
+		panelPublisherId = new JPanel();
+		GridBagConstraints gbc_panelPublisherId = new GridBagConstraints();
+		gbc_panelPublisherId.insets = new Insets(0, 0, 5, 0);
+		gbc_panelPublisherId.fill = GridBagConstraints.BOTH;
+		gbc_panelPublisherId.gridx = 1;
+		gbc_panelPublisherId.gridy = 0;
+		inputPanel.add(panelPublisherId, gbc_panelPublisherId);
+		panelPublisherId.setLayout(new BoxLayout(panelPublisherId, BoxLayout.X_AXIS));
+
+		txtPublisherId = new JTextField();
+		txtPublisherId.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		panelPublisherId.add(txtPublisherId);
+		txtPublisherId.setColumns(10);
+
+		btnCreateId = new JButton("Tạo");
+		btnCreateId.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		panelPublisherId.add(btnCreateId);
+
+		// Dòng 2: Tên nhà xuất bản
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0; // Cột đầu tiên
+		gbc.gridy = 1; // Dòng thứ hai
+		inputPanel.add(lblPublisherName, gbc);
+
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 0);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1; // Cột thứ hai
+		gbc.gridy = 1; // Dòng thứ hai
+		inputPanel.add(txtPublisherName, gbc);
+
+		// Dòng 3: Địa chỉ
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0; // Cột đầu tiên
+		gbc.gridy = 2; // Dòng thứ ba
+		inputPanel.add(lblAddress, gbc);
+
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 5, 0);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1; // Cột thứ hai
+		gbc.gridy = 2; // Dòng thứ ba
+		inputPanel.add(txtAddress, gbc);
+
+		// Dòng 4: Liên hệ
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 0, 5);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 0; // Cột đầu tiên
+		gbc.gridy = 3; // Dòng thứ tư
+		inputPanel.add(lblContact, gbc);
+
+		gbc = new GridBagConstraints();
+		gbc.insets = new Insets(5, 5, 0, 0);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx = 1; // Cột thứ hai
+		gbc.gridy = 3; // Dòng thứ tư
+		inputPanel.add(txtContact, gbc);
+
+		// Panel dưới cùng chứa bảng dữ liệu
+		String[] columnNames = { "Mã nhà xuất bản", "Tên nhà xuất bản", "Địa chỉ", "Liên hệ" };
+		Object[][] data = {};
+		publisherTable = new JTable(data, columnNames);
+
+		DefaultTableCellRenderer headerRenderer = new DefaultTableCellRenderer();
+		headerRenderer.setFont(new Font("Tahoma", Font.BOLD, 16));
+		headerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+
+		// Áp dụng renderer cho tiêu đề
+		publisherTable.getTableHeader().setDefaultRenderer(headerRenderer);
+
+		// Cài đặt font và chiều cao cho nội dung bảng
+		publisherTable.setFont(new Font("Tahoma", Font.BOLD, 14));
+		publisherTable.setRowHeight(30);
+		JScrollPane scrollTable = new JScrollPane(publisherTable);
+
+		// Thêm các thành phần vào panel
+		JPanel topPanel = new JPanel(new BorderLayout());
+		topPanel.add(inputPanel, BorderLayout.CENTER);
+		topPanel.add(createFunctionPanel(), BorderLayout.EAST);
+
+		panel = new JPanel();
+		topPanel.add(panel, BorderLayout.SOUTH);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+
+		txtFind = new JTextField();
+		txtFind.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel.add(txtFind);
+		txtFind.setColumns(10);
+
+		btnFind = new JButton("Tìm kiếm");
+		btnFind.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		panel.add(btnFind);
+
+		add(topPanel, BorderLayout.NORTH);
+		add(scrollTable, BorderLayout.CENTER);
+
+	}
+
+	private JPanel createFunctionPanel() {
+		JPanel functionPanel = new JPanel();
+		functionPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLACK),
+				"Chức năng", TitledBorder.LEFT, TitledBorder.TOP, new Font("Tahoma", Font.BOLD, 14), Color.BLACK));
+
+		functionPanel.setPreferredSize(new Dimension(100, 0));
+		functionPanel.setLayout(new GridLayout(3, 1, 10, 10));
+
+		btnAdd = new JButton("Thêm");
+		btnAdd.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnEdit = new JButton("Sửa");
+		btnEdit.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		btnDelete = new JButton("Xóa");
+		btnDelete.setFont(new Font("Tahoma", Font.PLAIN, 16));
+
+		functionPanel.add(btnAdd);
+		functionPanel.add(btnEdit);
+		functionPanel.add(btnDelete);
+
+		return functionPanel;
+	}
+
+}

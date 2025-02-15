@@ -1,0 +1,127 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class SaleView extends JPanel {
+	private static final long serialVersionUID = 1L;
+	private JTextField searchField, quantityField;
+	private JTable bookTable, cartTable;
+	private DefaultTableModel bookModel, cartModel;
+	private JLabel totalPriceLabel;
+	private JButton payButton, addButton, removeButton;
+
+	public SaleView() {
+		setLayout(new BorderLayout(10, 10));
+
+		// **🔎 Search Panel**
+		JPanel searchPanel = new JPanel();
+		searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.X_AXIS));
+		JLabel label = new JLabel("🔎 Tìm kiếm sách:");
+		label.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		searchPanel.add(label);
+		searchField = new JTextField(20);
+		searchField.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		searchPanel.add(searchField);
+		add(searchPanel, BorderLayout.NORTH);
+
+		// **📚 Book List Table**
+		String[] bookColumns = { "Tên sách", "Giá (VNĐ)" };
+		bookModel = new DefaultTableModel(bookColumns, 0);
+		bookTable = new JTable(bookModel);
+		bookTable.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		JScrollPane bookScrollPane = new JScrollPane(bookTable);
+
+		JPanel bookPanel = new JPanel(new BorderLayout());
+		bookPanel.add(bookScrollPane, BorderLayout.CENTER);
+
+		JPanel addPanel = new JPanel();
+		addPanel.setLayout(new BoxLayout(addPanel, BoxLayout.X_AXIS));
+		quantityField = new JTextField(5);
+		quantityField.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		addButton = new JButton("Thêm vào giỏ");
+		addButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		JLabel label_1 = new JLabel("Số lượng:");
+		label_1.setFont(new Font("Tahoma", Font.PLAIN, 20));
+		addPanel.add(label_1);
+		addPanel.add(quantityField);
+		addPanel.add(addButton);
+
+		bookPanel.add(addPanel, BorderLayout.SOUTH);
+		add(bookPanel, BorderLayout.WEST);
+
+		// **🛒 Cart Panel with Table**
+		JPanel cartPanel = new JPanel(new BorderLayout());
+		String[] cartColumns = { "Tên sách", "Giá (VNĐ)", "Số lượng", "Tổng giá" };
+		cartModel = new DefaultTableModel(cartColumns, 0);
+		cartTable = new JTable(cartModel);
+		JScrollPane cartScrollPane = new JScrollPane(cartTable);
+		cartPanel.add(cartScrollPane, BorderLayout.CENTER);
+
+		removeButton = new JButton("🗑 Xóa mục đã chọn");
+		removeButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		JPanel removePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		removePanel.add(removeButton);
+		cartPanel.add(removePanel, BorderLayout.SOUTH);
+
+		add(cartPanel, BorderLayout.CENTER);
+
+		// **💰 Total & Buttons**
+		JPanel bottomPanel = new JPanel(new BorderLayout());
+		JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+		totalPriceLabel = new JLabel("💰 Tổng tiền: 320000 VNĐ");
+		totalPriceLabel.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		totalPanel.add(totalPriceLabel);
+		bottomPanel.add(totalPanel, BorderLayout.NORTH);
+
+		JPanel buttonPanel = new JPanel();
+		payButton = new JButton("🏦 Thanh Toán");
+		payButton.setFont(new Font("Tahoma", Font.PLAIN, 18));
+		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+		buttonPanel.add(payButton);
+		bottomPanel.add(buttonPanel, BorderLayout.EAST);
+
+		add(bottomPanel, BorderLayout.SOUTH);
+	}
+
+	public JTextField getSearchField() {
+		return searchField;
+	}
+
+	public JTextField getQuantityField() {
+		return quantityField;
+	}
+
+	public JTable getBookTable() {
+		return bookTable;
+	}
+
+	public JTable getCartTable() {
+		return cartTable;
+	}
+
+	public DefaultTableModel getBookModel() {
+		return bookModel;
+	}
+
+	public DefaultTableModel getCartModel() {
+		return cartModel;
+	}
+
+	public JLabel getTotalPriceLabel() {
+		return totalPriceLabel;
+	}
+
+	public JButton getAddButton() {
+		return addButton;
+	}
+
+	public JButton getPayButton() {
+		return payButton;
+	}
+
+	public JButton getRemoveButton() {
+		return removeButton;
+	}
+}

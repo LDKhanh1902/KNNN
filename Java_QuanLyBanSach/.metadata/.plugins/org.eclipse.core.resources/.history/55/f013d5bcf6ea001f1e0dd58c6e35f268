@@ -1,0 +1,133 @@
+package vn.DA_KNNN.Model;
+
+import java.util.Date;
+
+public class Employee {
+	private String employeeId;
+	private String firstName;
+	private String lastName;
+	private Date birthDate;
+	private Date hireDate;
+	private String email;
+	private String phoneNumber;
+	private String address;
+	private int positionId;
+	private String password;
+
+	public Employee() {
+		this.employeeId = "";
+		this.firstName = "";
+		this.lastName = "";
+		this.birthDate = new Date();
+		this.hireDate = new Date();
+		this.email = "a@gmail.com";
+		this.phoneNumber = "0123456789";
+		this.address = "VN";
+		this.positionId = 3;
+		this.password = "12345";
+	}
+
+	// Constructor
+	public Employee(String employeeId, String firstName, String lastName, Date birthDate, Date hireDate, String email,
+			String phoneNumber, String address, int positionId, String password) {
+		this.employeeId = employeeId;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.birthDate = birthDate;
+		this.hireDate = hireDate;
+		this.email = email;
+		this.phoneNumber = phoneNumber;
+		this.address = address;
+		this.positionId = positionId;
+		this.password = password;
+	}
+
+	// Getters and Setters
+	public String getEmployeeId() {
+		return employeeId;
+	}
+
+	public void setEmployeeId(String employeeId) {
+		this.employeeId = employeeId;
+	}
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public Date getBirthDate() {
+		return birthDate;
+	}
+
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+
+	public Date getHireDate() {
+		return hireDate;
+	}
+
+	public void setHireDate(Date hireDate) {
+		this.hireDate = hireDate;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public String getAddress() {
+		return address;
+	}
+
+	public void setAddress(String address) {
+		this.address = address;
+	}
+
+	public int getPositionId() {
+		return positionId;
+	}
+
+	public void setPositionId(int positionId) {
+		this.positionId = positionId;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	@Override
+	public String toString() {
+		return "Employee{" + "employeeId=" + employeeId + ", firstName='" + firstName + '\'' + ", lastName='" + lastName
+				+ '\'' + ", birthDate=" + birthDate + ", hireDate=" + hireDate + ", email='" + email + '\''
+				+ ", phoneNumber='" + phoneNumber + '\'' + ", address='" + address + '\'' + ", positionId=" + positionId
+				+ ", password='" + password + '\'' + '}';
+	}
+}

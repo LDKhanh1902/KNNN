@@ -1,0 +1,77 @@
+package vn.DA_KNNN.View;
+
+import vn.DA_KNNN.Controller.SaleController;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class SaleView extends JPanel {
+    private static final long serialVersionUID = 1L;
+    private JTextField searchField;
+    private JTable bookTable, cartTable;
+    private DefaultTableModel bookModel, cartModel;
+    private JLabel totalPriceLabel;
+    private JButton searchButton, printInvoiceButton, payButton, refreshButton;
+    
+    public SaleView() {
+        setLayout(new BorderLayout(10, 10));
+
+        // **🔎 Search Panel**
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        searchPanel.add(new JLabel("🔎 Tìm kiếm sách:"));
+        searchField = new JTextField(20);
+        searchPanel.add(searchField);
+        searchButton = new JButton("Tìm");
+        searchPanel.add(searchButton);
+        add(searchPanel, BorderLayout.NORTH);
+
+        // **📚 Book List Table**
+        String[] bookColumns = {"Tên sách", "Giá (VNĐ)"};
+        bookModel = new DefaultTableModel(bookColumns, 0);
+        bookTable = new JTable(bookModel);
+        JScrollPane bookScrollPane = new JScrollPane(bookTable);
+        add(bookScrollPane, BorderLayout.WEST);
+
+        // **🛒 Cart Table**
+        String[] cartColumns = {"Tên sách", "Giá (VNĐ)", "Số lượng", "Tổng giá", "Xóa"};
+        cartModel = new DefaultTableModel(cartColumns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return column == 2;
+            }
+        };
+        cartTable = new JTable(cartModel);
+        JScrollPane cartScrollPane = new JScrollPane(cartTable);
+        add(cartScrollPane, BorderLayout.CENTER);
+
+        // **💰 Total & Buttons**
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        JPanel totalPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        totalPriceLabel = new JLabel("💰 Tổng tiền: 0 VNĐ");
+        totalPanel.add(totalPriceLabel);
+        bottomPanel.add(totalPanel, BorderLayout.NORTH);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+        printInvoiceButton = new JButton("🖨️ Xuất Hóa Đơn");
+        payButton = new JButton("🏦 Thanh Toán");
+        refreshButton = new JButton("🔄 Làm Mới");
+        buttonPanel.add(printInvoiceButton);
+        buttonPanel.add(payButton);
+        buttonPanel.add(refreshButton);
+        bottomPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(bottomPanel, BorderLayout.SOUTH);
+    }
+
+    public JTextField getSearchField() { return searchField; }
+    public JTable getBookTable() { return bookTable; }
+    public JTable getCartTable() { return cartTable; }
+    public DefaultTableModel getBookModel() { return bookModel; }
+    public DefaultTableModel getCartModel() { return cartModel; }
+    public JLabel getTotalPriceLabel() { return totalPriceLabel; }
+    public JButton getSearchButton() { return searchButton; }
+    public JButton getPrintInvoiceButton() { return printInvoiceButton; }
+    public JButton getPayButton() { return payButton; }
+    public JButton getRefreshButton() { return refreshButton; }
+}

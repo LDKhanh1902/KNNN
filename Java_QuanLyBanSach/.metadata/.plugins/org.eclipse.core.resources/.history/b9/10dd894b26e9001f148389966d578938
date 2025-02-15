@@ -1,0 +1,114 @@
+package vn.DA_KNNN.Components;
+
+import org.apache.poi.xwpf.usermodel.*;
+import java.io.*;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+
+public class ReceiptExporter {
+    private String templatePath; // Đường dẫn file mẫu Word
+
+    public ReceiptExporter(String templatePath) {
+        this.templatePath = templatePath;
+    }
+
+    /**
+     * Tạo hóa đơn Word từ template với dữ liệu đầu vào.
+     * @param data: Map chứa dữ liệu thay thế
+     * @param outputPath: Đường dẫn file Word đầu ra
+     */
+    public void generateInvoice(Map<String, String> data, String outputPath, JPanel view) {
+        try {
+            // 1️⃣ Mở file Word mẫu
+            FileInputStream fis = new FileInputStream(templatePath);
+            XWPFDocument document = new XWPFDocument(fis);
+
+            // 2️⃣ Thay thế dữ liệu trong đoạn văn bản
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                replaceTextInParagraph(paragraph, data);
+            }
+
+            // 3️⃣ Chèn dữ liệu sản phẩm vào bảng
+            for (XWPFTable table : document.getTables()) {
+                if (table.getRows().size() > 1) { // Đảm bảo có ít nhất một dòng tiêu đề
+                    List<XWPFTableRow> rows = table.getRows();
+                    int rowCountTable = table.getRows().size() - 1;
+                    int rowCount = data.size() / 4; // Số lượng sản phẩm
+                    System.out.println(table.getRows().size());
+                    // Xóa các dòng cũ (nếu có)
+                    for (int i = rows.size() - 1; i > 0; i--) {
+                        table.removeRow(i);
+                    }
+                    System.out.println(table.getRows().size());
+                    System.out.println(rowCount);
+                    // Thêm dữ liệu mới vào bảng
+                    for (int i = 1; i <= rowCountTable; i++) {
+                        XWPFTableRow newRow = table.createRow();
+                        if(i<= rowCount) {
+                        	setCellTextWithStyle(newRow.getCell(0), String.valueOf(i), false, "center");
+	                        newRow.getCell(1).setText(data.getOrDefault("book_" + i, "")); // Tên sách
+	                        setCellTextWithStyle(newRow.getCell(2), data.getOrDefault("price_" + i, ""), false, "right");
+	                        setCellTextWithStyle(newRow.getCell(3), data.getOrDefault("qty_" + i, ""), true, "center");
+	                        setCellTextWithStyle(newRow.getCell(4), data.getOrDefault("total_" + i, ""), false, "right");
+                        }          
+                        else
+                        	setCellTextWithStyle(newRow.getCell(0), String.valueOf(i), false, "center");
+                    }
+                    System.out.println(table.getRows().size());
+                }
+            }
+
+            // 4️⃣ Lưu file mới sau khi thay thế dữ liệu
+            FileOutputStream fos = new FileOutputStream(outputPath);
+            document.write(fos);
+            fos.close();
+            document.close();
+            fis.close();
+
+            JOptionPane.showMessageDialog(view, "Hóa đơn đã được tạo!","Thông báo",JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ✅ Hàm thay thế văn bản trong đoạn văn bản Word
+    private void replaceTextInParagraph(XWPFParagraph paragraph, Map<String, String> data) {
+        for (XWPFRun run : paragraph.getRuns()) {
+            String text = run.getText(0);
+            if (text != null) {
+                for (Map.Entry<String, String> entry : data.entrySet()) {
+                    text = text.replace("{{" + entry.getKey() + "}}", entry.getValue());
+                }
+                run.setText(text, 0);
+            }
+        }
+    }
+    
+    private void setCellTextWithStyle(XWPFTableCell cell, String text, boolean isBold, String alignment) {
+        XWPFParagraph paragraph = cell.getParagraphs().get(0);
+
+        // Căn chỉnh văn bản
+        switch (alignment) {
+            case "left":
+                paragraph.setAlignment(ParagraphAlignment.LEFT);
+                break;
+            case "center":
+                paragraph.setAlignment(ParagraphAlignment.CENTER);
+                break;
+            case "right":
+                paragraph.setAlignment(ParagraphAlignment.RIGHT);
+                break;
+        }
+
+        // Định dạng chữ (font, kích thước, màu sắc, bold)
+        XWPFRun run = paragraph.createRun();
+        run.setText(text);
+        run.setBold(isBold); // Đặt bold cho văn bản
+        run.setFontFamily("Arial"); // Kiểu chữ
+        run.setFontSize(10); // Kích thước chữ
+        run.setColor("000000"); // Màu chữ (màu đen)
+    }
+}

@@ -1,0 +1,70 @@
+package vn.DA_KNNN.Components;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.data.general.DefaultPieDataset;
+import java.awt.Color;
+import javax.swing.BoxLayout;
+
+public class PieChart extends JPanel{
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Pie Chart Example");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.getContentPane().add(createChartPanel());
+            frame.setSize(600, 400);
+            frame.setLocationRelativeTo(null);
+            frame.setVisible(true);
+        });
+    }
+
+    public PieChart() {
+    	setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+    	add(createChartPanel());
+    }
+    
+    private static JPanel createChartPanel() {
+        // Tạo dataset cho Pie Chart
+        DefaultPieDataset dataset = new DefaultPieDataset();
+        dataset.setValue("Category A", 40);
+        dataset.setValue("Category B", 30);
+        dataset.setValue("Category C", 20);
+        dataset.setValue("Category D", 10);
+
+        // Tạo Pie Chart từ dataset
+        JFreeChart chart = ChartFactory.createPieChart(
+                "Pie Chart Example",   // Tên biểu đồ
+                dataset,               // Dữ liệu
+                true,                  // Bao gồm chú thích (legend)
+                true,                  // Bao gồm tooltips
+                false                  // Không bao gồm URL
+        );
+
+        // Tùy chỉnh màu sắc cho từng phần trong Pie Chart
+        PiePlot plot = (PiePlot) chart.getPlot();
+        plot.setSectionPaint("Category A", new Color(255, 100, 100));
+        plot.setSectionPaint("Category B", new Color(100, 255, 100));
+        plot.setSectionPaint("Category C", new Color(100, 100, 255));
+        plot.setSectionPaint("Category D", new Color(255, 255, 100));
+
+        // Hiển thị phần trăm cho từng phần trong Pie Chart
+        plot.setLabelGenerator(new StandardPieSectionLabelGenerator("{0}: {1} ({2})"));
+
+        // Đưa biểu đồ vào trong một JPanel
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setPreferredSize(new java.awt.Dimension(600, 400)); // Đặt kích thước cho JPanel
+
+        JPanel panel = new JPanel();
+        panel.add(chartPanel); // Thêm biểu đồ vào JPanel
+
+        return panel; // Trả về JPanel chứa Pie Chart
+    }
+}

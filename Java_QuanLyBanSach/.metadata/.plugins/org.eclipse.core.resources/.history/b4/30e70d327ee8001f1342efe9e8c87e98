@@ -1,0 +1,82 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+
+import vn.DA_KNNN.Components.ExcelExporter;
+import vn.DA_KNNN.Model.DataProvider;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.Vector;
+
+public class Test extends JPanel{
+	public static void main(String[] args) {
+        try {
+            // Lấy thư mục Documents của người dùng
+            Path documentsPath = Paths.get(System.getProperty("user.home"), "Documents", "BaoCaoDoanhThu.xlsx");
+
+
+            // In ra đường dẫn
+            System.out.println("Documents folder path: " + documentsPath.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+    /** ✅ Load dữ liệu sách vào bảng */
+	public void exportRevenue() {
+			String templatePath = "C:\\Users\\KHANH\\OneDrive\\Documents\\BaoCaoDoanhThu1.xlsx";
+		    String url = getClass().getResource("/templates/BaoCao_DoanhThu.xlsx").getPath();
+		    
+		    System.out.println(url);
+		    
+		    // SQL Query
+		    String sql = "CALL GetMonthlyReport()";
+		    DefaultTableModel model = loadDataTable(sql);
+		    System.out.println(model.getColumnCount());
+		    System.out.println(model.getRowCount());
+		    ExcelExporter.updateExcelTemplate(url, templatePath, loadDataTable(sql));
+		}
+	
+	private DefaultTableModel loadDataTable(String sql) {
+		DefaultTableModel model = new DefaultTableModel();
+		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+			String[] columns = { "Mã thể loại", "Tên thể loại", "Mô tả" };
+
+			if (rs == null) {
+				return new DefaultTableModel(columns, 0);
+			}
+
+			ResultSetMetaData meta = rs.getMetaData();
+			int columnCount = meta.getColumnCount();
+			// ✅ Khởi tạo và lấy tên cột từ metadata
+			String[] columnNames = new String[columnCount];
+			for (int i = 1; i <= columnCount; i++) {
+				columnNames[i - 1] = meta.getColumnLabel(i);
+			}
+			model.setColumnIdentifiers(columnNames); // Gán tên cột cho bảng
+
+			// ✅ Lặp qua từng dòng dữ liệu và thêm vào bảng
+			while (rs.next()) {
+				Object[] rowData = new Object[columnCount];
+				for (int i = 1; i <= columnCount; i++) {
+					rowData[i - 1] = rs.getObject(i);
+				}
+				model.addRow(rowData);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return model;
+	}
+		
+}

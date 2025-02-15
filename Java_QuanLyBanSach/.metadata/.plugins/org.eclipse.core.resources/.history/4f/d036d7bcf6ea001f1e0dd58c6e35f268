@@ -1,0 +1,232 @@
+package vn.DA_KNNN.Controller;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.View.CustomerView;
+
+public class CustomerController {
+	private CustomerView view;
+	private String query = "SELECT `CustomerId` as 'Mã Khách Hàng', `FirstName` as 'Tên', `LastName` as 'Họ', `PhoneNumber`, `Address` as 'Địa Chỉ', "
+			+ "`BirthDate` as 'Ngày Sinh', `Point` as 'Điểm' FROM `customer`";
+
+	public CustomerController(CustomerView _view) {
+		this.view = _view;
+
+		reloadData(query);
+		setupEventListeners();
+	}
+
+	private void reloadData(String sql) {
+		DefaultTableModel model = loadDataTable(sql);
+		view.setData(model);
+		tableRowClick(view.getTable(), model);
+	}
+
+	private void setupEventListeners() {
+		view.getBtnAdd().addActionListener(e -> addCustomer());
+		view.getBtnEdit().addActionListener(e -> editCustomer());
+		view.getBtnDelete().addActionListener(e -> deleteCustomer());
+		view.getBtnCreateId().addActionListener(e -> createCustomerId());
+		view.getBtnFind().addActionListener(e -> findCustomerData());
+	}
+
+	private void addCustomer() {
+		String id = view.getTxtCustomerId().getText().trim();
+		String firstName = view.getTxtFirstName().getText().trim();
+		String lastName = view.getTxtLastName().getText().trim();
+		String birthDate = view.getTxtBirthDate().getText().trim();
+		String phoneNumber = view.getTxtPhoneNumber().getText().trim();
+		String address = view.getTxtAddress().getText().trim();
+
+		// Kiểm tra dữ liệu đầu vào
+		if (id.isEmpty() || firstName.isEmpty() || lastName.isEmpty() || phoneNumber.isEmpty() || address.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng điền đầy đủ thông tin khách hàng!", "Thông báo",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		String sql = String.format(
+				"INSERT INTO customer (CustomerId, FirstName, LastName, BirthDate, PhoneNumber, Address) "
+						+ "VALUES ('%s', '%s', '%s', '%s', '%s', '%s')",
+				id, firstName, lastName, birthDate, phoneNumber, address);
+
+		if (DataProvider.getInstance().insert(sql)) {
+			JOptionPane.showMessageDialog(view, "Thêm khách hàng thành công!", "Thông báo",
+					JOptionPane.INFORMATION_MESSAGE);
+			reloadData(query);
+			clearFields();
+		} else {
+			JOptionPane.showMessageDialog(view, "Thêm khách hàng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void editCustomer() {
+		String id = view.getTxtCustomerId().getText().trim();
+		String firstName = view.getTxtFirstName().getText().trim();
+		String lastName = view.getTxtLastName().getText().trim();
+		String birthDate = view.getTxtBirthDate().getText().trim();
+		String phoneNumber = view.getTxtPhoneNumber().getText().trim();
+		String address = view.getTxtAddress().getText().trim();
+
+		if (id.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng chọn khách hàng cần chỉnh sửa!", "Cảnh báo",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có chắc chắn muốn cập nhật thông tin khách hàng này?",
+				"Xác nhận chỉnh sửa", JOptionPane.YES_NO_OPTION);
+		if (confirm != JOptionPane.YES_OPTION)
+			return;
+
+		String sql = String.format(
+				"UPDATE customer SET FirstName='%s', LastName='%s', BirthDate='%s', PhoneNumber='%s', Address='%s' WHERE CustomerId='%s'",
+				firstName, lastName, birthDate, phoneNumber, address, id);
+
+		if (DataProvider.getInstance().update(sql)) {
+			JOptionPane.showMessageDialog(view, "Cập nhật thông tin khách hàng thành công!", "Thông báo",
+					JOptionPane.INFORMATION_MESSAGE);
+			reloadData(query);
+			clearFields();
+		} else {
+			JOptionPane.showMessageDialog(view, "Cập nhật thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void deleteCustomer() {
+		String id = view.getTxtCustomerId().getText().trim();
+
+		if (id.isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng chọn khách hàng cần xóa!", "Cảnh báo",
+					JOptionPane.WARNING_MESSAGE);
+			return;
+		}
+
+		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có chắc chắn muốn xóa khách hàng này?", "Xác nhận xóa",
+				JOptionPane.YES_NO_OPTION);
+		if (confirm != JOptionPane.YES_OPTION)
+			return;
+
+		String sql = String.format("DELETE FROM customer WHERE CustomerId='%s'", id);
+
+		if (DataProvider.getInstance().delete(sql)) {
+			JOptionPane.showMessageDialog(view, "Xóa khách hàng thành công!", "Thông báo",
+					JOptionPane.INFORMATION_MESSAGE);
+			reloadData(query);
+			clearFields();
+		} else {
+			JOptionPane.showMessageDialog(view, "Xóa khách hàng thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	/** 🔹 Hàm dùng chung để lấy giá trị duy nhất */
+	private String fetchSingleValue(String sql, String columnName) {
+		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+			if (rs.next()) {
+				return rs.getString(columnName);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	private void createCustomerId() {
+		// TODO Auto-generated method stub
+		String nextId = fetchSingleValue("SELECT MAX(CustomerId) + 1 FROM Customer", "MAX(CustomerId) + 1");
+		view.getTxtCustomerId().setText(nextId);
+	}
+
+	private void findCustomerData() {
+		// TODO Auto-generated method stub
+		String id = view.getTxtFind().getText();
+		String name = view.getTxtFind().getText();
+
+		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
+
+		String sql;
+		if (isNumeric) {
+			// Kiểm tra nếu id là số, tìm theo EmployeeId
+			sql = query + " WHERE CustomerId = " + id + " OR FirstName LIKE '%" + name + "%' OR LastName LIKE '%" + name
+					+ "%'";
+		} else {
+			// Nếu id không phải là số, tìm theo FirstName hoặc LastName
+			sql = query + " WHERE FirstName LIKE '%" + name + "%' OR LastName LIKE '%" + name + "%'";
+		}
+
+		reloadData(sql);
+
+		view.setData(loadDataTable(sql));
+		System.out.println(sql);
+	}
+
+	private DefaultTableModel loadDataTable(String sql) {
+		DefaultTableModel model = new DefaultTableModel();
+		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+			String[] columns = { "Mã thể loại", "Tên thể loại", "Mô tả" };
+
+			if (rs == null) {
+				return new DefaultTableModel(columns, 0);
+			}
+
+			ResultSetMetaData meta = rs.getMetaData();
+			int columnCount = meta.getColumnCount();
+			// ✅ Khởi tạo và lấy tên cột từ metadata
+			String[] columnNames = new String[columnCount];
+			for (int i = 1; i <= columnCount; i++) {
+				columnNames[i - 1] = meta.getColumnLabel(i);
+			}
+			model.setColumnIdentifiers(columnNames); // Gán tên cột cho bảng
+
+			// ✅ Lặp qua từng dòng dữ liệu và thêm vào bảng
+			while (rs.next()) {
+				Object[] rowData = new Object[columnCount];
+				for (int i = 1; i <= columnCount; i++) {
+					rowData[i - 1] = rs.getObject(i);
+				}
+				model.addRow(rowData);
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return model;
+	}
+
+	private void tableRowClick(JTable table, DefaultTableModel model) {
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int selectedRow = table.getSelectedRow();
+				if (selectedRow != -1) { // Kiểm tra có hàng nào được chọn không
+					view.getTxtCustomerId().setText(model.getValueAt(selectedRow, 0).toString());
+					view.getTxtFirstName().setText(model.getValueAt(selectedRow, 1).toString());
+					view.getTxtLastName().setText(model.getValueAt(selectedRow, 2).toString());
+					view.getTxtPhoneNumber().setText(model.getValueAt(selectedRow, 3).toString());
+					view.getTxtAddress().setText(model.getValueAt(selectedRow, 4).toString());
+					view.getTxtBirthDate().setText(model.getValueAt(selectedRow, 5).toString());
+				}
+			}
+		});
+	}
+
+	private void clearFields() {
+		view.getTxtCustomerId().setText("");
+		view.getTxtFirstName().setText("");
+		view.getTxtLastName().setText("");
+		view.getTxtBirthDate().setText("");
+		view.getTxtPhoneNumber().setText("");
+		view.getTxtAddress().setText("");
+	}
+
+}

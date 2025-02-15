@@ -1,0 +1,32 @@
+package vn.DA_KNNN.Controller;
+
+import java.sql.ResultSet;
+
+import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.Model.User;
+import vn.DA_KNNN.View.MainView;
+
+public class MainController {
+	private MainView view;
+	
+	public MainController(MainView _view) {
+		this.view = _view;
+		
+		this.view.getUserInfo().setText(User.getName());
+		
+		this.view.getBookCountValue().setText(getBookCount());
+	}
+	
+	private String getBookCount() {
+		String str = "";
+		try(ResultSet rs = DataProvider.getInstance().view("SELECT COUNT(*) FROM book")){
+			str = rs.getString(0);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
+		
+		return str;
+	}
+}

@@ -1,0 +1,17 @@
+package vn.DA_KNNN.Components;
+
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+
+import vn.DA_KNNN.View.Test;
+
+public class GetResource {
+	public static ImageIcon setSizeImage(String url) {
+    	ImageIcon icon = new ImageIcon(Test.class.getResource(url));
+        Image img = icon.getImage();
+        Image scaledImg = img.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+        ImageIcon scaledIcon = new ImageIcon(scaledImg);
+        return scaledIcon;
+    }
+}

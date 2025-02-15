@@ -1,0 +1,74 @@
+package vn.DA_KNNN.Components;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.RepaintManager;
+
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.CategoryPlot;
+import org.jfree.chart.renderer.category.LineAndShapeRenderer;
+import org.jfree.data.category.DefaultCategoryDataset;
+import java.awt.Color;
+import javax.swing.BoxLayout;
+
+public class LineChart extends JPanel {
+	private final int[] values;
+	private final String[] columnNames;
+
+	public static void main(String[] args) {
+		// Tạo JFrame để hiển thị biểu đồ
+		JFrame frame = new JFrame("Line Chart Example");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.getContentPane().add(createChartPanel(new int[] { 10, 30, 20, 40 },"Series 1",new String[] { "A", "B", "C", "D" })); // Thêm JPanel chứa biểu đồ vào JFrame
+		frame.setSize(600, 400); // Đặt kích thước cho JFrame
+		frame.setLocationRelativeTo(null); // Căn giữa JFrame
+		frame.setVisible(true); // Hiển thị JFrame
+	}
+
+	public LineChart() {
+		this.values = new int[] { 10, 30, 20, 40 };
+		this.columnNames = new String[] { "A", "B", "C", "D" };
+
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+
+		JPanel panel = new JPanel();
+		add(panel);
+		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+		panel.add(createChartPanel(values,"Series 1",columnNames));
+	}
+
+	private static JPanel createChartPanel(int[] values,String series,String[] columnNames) {
+		// Tạo dataset cho Line Chart
+		DefaultCategoryDataset dataset = new DefaultCategoryDataset();
+		
+		for (int i = 0;i<values.length;i++) {
+			dataset.addValue(values[i], series, columnNames[i]);
+		}
+
+		// Tạo biểu đồ đường từ dataset
+		JFreeChart chart = ChartFactory.createLineChart("Line Chart Example", // Tiêu đề biểu đồ
+				"Category", // Tên trục X
+				"Value", // Tên trục Y
+				dataset, // Dataset
+				org.jfree.chart.plot.PlotOrientation.VERTICAL, // Định hướng dọc
+				true, // Hiển thị chú thích (legend)
+				true, // Hiển thị tooltips
+				false // Không có URL
+		);
+
+		// Tùy chỉnh giao diện biểu đồ
+		CategoryPlot plot = (CategoryPlot) chart.getPlot();
+		LineAndShapeRenderer renderer = new LineAndShapeRenderer();
+		renderer.setSeriesPaint(0, new Color(0, 0, 255)); // Màu xanh cho đường
+		renderer.setSeriesShapesVisible(0, true); // Hiển thị dấu tròn trên đường
+		plot.setRenderer(renderer);
+
+		// Tạo một ChartPanel chứa biểu đồ và trả về JPanel
+		ChartPanel chartPanel = new ChartPanel(chart);
+		chartPanel.setPreferredSize(new java.awt.Dimension(600, 400));
+
+		return chartPanel;
+	}
+}

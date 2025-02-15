@@ -1,0 +1,68 @@
+package vn.DA_KNNN.Model;
+
+import java.sql.*;
+
+public class Payment {
+    private int id;            // Mã thanh toán (INTEGER)
+    private double amount;     // Số tiền thanh toán
+    private Date paymentDate;  // Ngày thanh toán (DATE)
+
+    // ✅ Constructor không tham số (Dùng khi cần khởi tạo đối tượng trống)
+    public Payment() {}
+
+    // ✅ Constructor đầy đủ
+    public Payment(double amount) {
+        this.id = generateNewId(); // Tự động tạo PaymentId
+        this.amount = amount;
+        this.paymentDate = new Date(System.currentTimeMillis()); // Lấy ngày hiện tại
+    }
+
+    // ✅ Tự động tạo PaymentId bằng cách lấy MAX(PaymentId) + 1
+    private int generateNewId() {
+        int newId = 1; // Nếu bảng rỗng, ID bắt đầu từ 1
+        String query = "SELECT MAX(PaymentId) + 1 FROM payment";
+        try (ResultSet rs = DataProvider.getInstance().view(query)) {
+            if (rs.next()) {
+                newId = rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return newId;
+    }
+
+    // ✅ Getter & Setter
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public Date getPaymentDate() {
+        return paymentDate;
+    }
+
+    public void setPaymentDate(Date paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    // ✅ Hiển thị thông tin đối tượng (Dùng để debug/log dữ liệu)
+    @Override
+    public String toString() {
+        return "Payment{" +
+                "id=" + id +
+                ", amount=" + amount +
+                ", paymentDate=" + paymentDate +
+                '}';
+    }
+}

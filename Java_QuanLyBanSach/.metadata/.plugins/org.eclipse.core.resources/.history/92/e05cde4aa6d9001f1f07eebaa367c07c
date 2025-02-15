@@ -1,0 +1,75 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class LayoutView extends JPanel {
+
+    private JButton[] menuButtons;
+    private JPanel contentPanel; // Panel chính để thay đổi giao diện
+    private MainView main;
+
+    public LayoutView() {
+        setLayout(new BorderLayout());
+        // Tạo sidebar
+        JPanel sidebar = createSidebar();
+        add(sidebar, BorderLayout.WEST);
+
+        // Tạo panel chính
+        contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBackground(Color.WHITE); // Màu nền mặc định
+        add(contentPanel, BorderLayout.CENTER);
+
+        showContent(main.getMainPanel());
+    }
+
+    private JPanel createSidebar() {
+        JPanel sidebar = new JPanel();
+        sidebar.setLayout(new BorderLayout());
+        sidebar.setPreferredSize(new Dimension(200, 0)); // Đặt chiều rộng cố định cho sidebar
+        sidebar.setBackground(new Color(60, 63, 65)); // Màu nền sidebar
+
+        // Tiêu đề
+        JLabel titleLabel = new JLabel("QKT", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Tahoma", Font.BOLD, 36));
+        titleLabel.setForeground(Color.WHITE);
+        sidebar.add(titleLabel, BorderLayout.NORTH);
+
+        // Nút menu
+        JPanel buttonPanel = createMenuButtons();
+        sidebar.add(buttonPanel, BorderLayout.CENTER);
+
+        return sidebar;
+    }
+
+    private JPanel createMenuButtons() {
+        JPanel buttonPanel = new JPanel(new GridLayout(5, 1, 10, 10)); // GridLayout cho các nút
+        buttonPanel.setBackground(new Color(60, 63, 65));
+
+        // Tạo các nút menu
+        menuButtons = new JButton[3];
+        menuButtons[0] = new JButton("Dashboard");
+        menuButtons[1] = new JButton("Manage");
+        menuButtons[2] = new JButton("Settings");
+
+        // Tùy chỉnh nút
+        for (JButton button : menuButtons) {
+            button.setBackground(new Color(100, 100, 100));
+            button.setForeground(Color.WHITE);
+            button.setFont(new Font("Tahoma", Font.PLAIN, 14));
+            button.setFocusPainted(false);
+            buttonPanel.add(button);
+        }
+
+        return buttonPanel;
+    }
+
+    // Hiển thị nội dung dựa trên tên
+    private void showContent(JPanel content) {
+        contentPanel.removeAll(); // Xóa nội dung cũ
+        contentPanel.add(content, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+
+}

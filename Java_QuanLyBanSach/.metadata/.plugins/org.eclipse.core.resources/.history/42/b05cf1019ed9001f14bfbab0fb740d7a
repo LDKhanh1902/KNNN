@@ -1,0 +1,147 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.Random;
+
+// Class to draw the pie chart
+class PieChartPaint extends JPanel {
+    private final double[] values;
+    private final Color[] colors;
+
+    public PieChartPaint(double[] values) {
+        this.values = values;
+        this.colors = generateRandomColors(values.length);
+    }
+
+    // Generate random colors for the pie slices
+    private Color[] generateRandomColors(int count) {
+        Random random = new Random();
+        Color[] colors = new Color[count];
+        for (int i = 0; i < count; i++) {
+            colors[i] = new Color(random.nextInt(256), random.nextInt(256), random.nextInt(256));
+        }
+        return colors;
+    }
+
+    public Color[] getColors() {
+        return colors;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (values == null || values.length == 0) return;
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        int width = getWidth();
+        int height = getHeight();
+        int diameter = Math.min(width, height) - 20;
+        int x = (width - diameter) / 2;
+        int y = (height - diameter) / 2;
+
+        double total = calculateTotal(values);
+
+        double currentAngle = 0;
+        for (int i = 0; i < values.length; i++) {
+            double sliceAngle = 360.0 * (values[i] / total);
+            g2d.setColor(colors[i]);
+            g2d.fillArc(x, y, diameter, diameter, (int) Math.round(currentAngle), (int) Math.round(sliceAngle));
+            currentAngle += sliceAngle;
+        }
+
+        g2d.setColor(Color.BLACK);
+        g2d.drawOval(x, y, diameter, diameter);
+    }
+
+    private double calculateTotal(double[] values) {
+        double total = 0;
+        for (double value : values) {
+            total += value;
+        }
+        return total;
+    }
+}
+
+class PieChart extends JPanel {
+    private final Color[] colors;
+
+    public PieChart(String[] labels, double[] values) {
+        setLayout(new BorderLayout());
+
+        JLabel lblTitle = new JLabel("Biểu đồ loại sách", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Tahoma", Font.BOLD, 16));
+        add(lblTitle, BorderLayout.NORTH);
+
+        PieChartPaint pieChartPanel = new PieChartPaint(values);
+        pieChartPanel.setPreferredSize(new Dimension(300, 300));
+        add(pieChartPanel, BorderLayout.CENTER);
+
+        this.colors = pieChartPanel.getColors();
+
+        JPanel legendPanel = createLegendPanel(labels, values);
+        add(legendPanel, BorderLayout.EAST);
+    }
+
+    private JPanel createLegendPanel(String[] labels, double[] values) {
+        JPanel legendPanel = new JPanel();
+        legendPanel.setLayout(new GridBagLayout()); // Sử dụng GridBagLayout để căn chỉnh
+        legendPanel.setBorder(BorderFactory.createTitledBorder("Chú thích"));
+        legendPanel.setPreferredSize(new Dimension(150, 0)); // Đặt chiều rộng cố định
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(5, 5, 5, 5); // Khoảng cách giữa các thành phần
+        gbc.anchor = GridBagConstraints.WEST;
+
+        double total = calculateTotal(values);
+        for (int i = 0; i < labels.length; i++) {
+            // Màu sắc
+            gbc.gridx = 0;
+            gbc.gridy = i;
+            JLabel colorLabel = new JLabel();
+            colorLabel.setOpaque(true);
+            colorLabel.setBackground(colors[i]);
+            colorLabel.setPreferredSize(new Dimension(20, 20));
+            colorLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+            legendPanel.add(colorLabel, gbc);
+
+            // Nội dung chú thích
+            gbc.gridx = 1;
+            gbc.gridy = i;
+            String text = String.format("%s: %.2f%%", labels[i], (values[i] / total) * 100);
+            JLabel textLabel = new JLabel(text);
+            legendPanel.add(textLabel, gbc);
+        }
+
+        return legendPanel;
+    }
+
+    private double calculateTotal(double[] values) {
+        double total = 0;
+        for (double value : values) {
+            total += value;
+        }
+        return total;
+    }
+}
+
+// Main application class
+public class PieChartExample {
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            JFrame frame = new JFrame("Pie Chart With Legend");
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            frame.setSize(600, 400);
+
+            String[] labels = {"Sach A", "Sach B", "Sach C"};
+            double[] values = {30, 20, 50};
+            PieChart pieChart = new PieChart(labels, values);
+
+            frame.add(pieChart);
+            frame.setVisible(true);
+        });
+    }
+}

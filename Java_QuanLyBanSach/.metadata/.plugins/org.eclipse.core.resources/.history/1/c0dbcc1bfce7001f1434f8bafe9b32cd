@@ -1,0 +1,45 @@
+package vn.DA_KNNN.Components;
+
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.*;
+import java.util.List;
+
+public class ExcelExporter {
+
+    public static void updateExcelTemplate(String templatePath, String outputPath, List<String[]> data) {
+        try (FileInputStream fis = new FileInputStream(templatePath);
+             Workbook workbook = new XSSFWorkbook(fis);
+             FileOutputStream fos = new FileOutputStream(outputPath)) {
+
+            Sheet sheet = workbook.getSheetAt(0); // Lấy Sheet đầu tiên
+
+            int startRow = 3; // Dữ liệu bắt đầu từ dòng thứ 5 (index 4)
+
+            for (int i = 0; i < data.size(); i++) {
+                Row row = sheet.getRow(startRow + i);
+                if (row == null) {
+                    row = sheet.createRow(startRow + i);
+                }
+
+                String[] rowData = data.get(i);
+                for (int j = 0; j < rowData.length; j++) {
+                    Cell cell = row.getCell(j);
+                    if (cell == null) {
+                        cell = row.createCell(j);
+                    }
+                    cell.setCellValue(rowData[j]);
+                }
+            }
+
+            // Lưu file Excel sau khi cập nhật dữ liệu
+            workbook.write(fos);
+            System.out.println("✅ Cập nhật dữ liệu thành công vào: " + outputPath);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.out.println("❌ Lỗi cập nhật dữ liệu vào file Excel!");
+        }
+    }
+}

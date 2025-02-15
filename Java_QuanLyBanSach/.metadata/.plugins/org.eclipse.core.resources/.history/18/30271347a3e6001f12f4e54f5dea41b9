@@ -1,0 +1,51 @@
+package vn.DA_KNNN.Components;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class BarChart extends JPanel {
+    private static final long serialVersionUID = 1L;
+    private int[] revenues = {500000, 100000, 900000, 1200000, 1500000, 1700000, 2000000, 2300000, 2600000, 3000000, 3500000, 4000000};
+    private String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    private Color[] colors = {Color.ORANGE, Color.BLUE, Color.GREEN, Color.RED, Color.MAGENTA, Color.YELLOW, Color.CYAN, Color.PINK, Color.GRAY, Color.LIGHT_GRAY, Color.DARK_GRAY, Color.BLACK};
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        int width = getWidth();
+        int height = getHeight();
+        int margin = 100;
+        int barHeight = 30;
+        int maxRevenue = 4000000;
+        
+        // Vẽ tiêu đề
+        g2.setFont(new Font("SansSerif", Font.BOLD, 18));
+        g2.drawString("So sánh doanh thu giữa các tháng", width / 2 - 150, 40);
+        
+        for (int i = 0; i < revenues.length; i++) {
+            int barWidth = (int) ((double) revenues[i] / maxRevenue * (width - 300)); // Giảm bớt để tránh khuất
+            int y = margin + i * (barHeight + 15);
+            
+            g2.setColor(colors[i % colors.length]);
+            g2.fillRect(margin, y, barWidth, barHeight);
+            g2.setColor(Color.BLACK);
+            g2.drawRect(margin, y, barWidth, barHeight);
+            
+            g2.setFont(new Font("SansSerif", Font.BOLD, 14));
+            g2.drawString(months[i], margin - 50, y + barHeight - 5);
+            g2.drawString(String.format("%,d VND", revenues[i]), margin + barWidth + 10, y + barHeight - 5); // Giữ khoảng cách để không bị khuất
+        }
+    }
+    
+    public static void main(String[] args) {
+        JFrame frame = new JFrame("So sánh doanh thu giữa các tháng");
+        BarChart chart = new BarChart();
+        frame.add(chart);
+        frame.setSize(1100, 700); // Mở rộng kích thước cửa sổ
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

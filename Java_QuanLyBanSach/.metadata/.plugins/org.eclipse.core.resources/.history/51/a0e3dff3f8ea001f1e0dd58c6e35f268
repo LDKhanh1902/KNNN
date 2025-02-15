@@ -1,0 +1,93 @@
+package vn.DA_KNNN.View;
+
+import org.apache.poi.xwpf.usermodel.*;
+import java.io.*;
+import java.util.*;
+
+public class Test {
+
+    public static void generateInvoice(String templatePath, String outputPath, Map<String, String> invoiceData, List<Map<String, String>> products) {
+        try (FileInputStream fis = new FileInputStream(templatePath);
+             XWPFDocument document = new XWPFDocument(fis)) {
+
+            // Duyệt qua các đoạn văn và thay thế các placeholder
+            for (XWPFParagraph paragraph : document.getParagraphs()) {
+                for (XWPFRun run : paragraph.getRuns()) {
+                    String text = run.getText(0);
+                    if (text != null) {
+                        // Thay thế các placeholder trong văn bản
+                        for (Map.Entry<String, String> entry : invoiceData.entrySet()) {
+                            if (text.contains("{{" + entry.getKey() + "}}")) {
+                                text = text.replace("{{" + entry.getKey() + "}}", entry.getValue());
+                                run.setText(text, 0);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Điền dữ liệu vào bảng
+            for (XWPFTable table : document.getTables()) {
+                int rowIndex = 1; // Bắt đầu từ dòng sản phẩm đầu tiên trong bảng
+                for (XWPFTableRow row : table.getRows()) {
+                    for (XWPFTableCell cell : row.getTableCells()) {
+                        String cellText = cell.getText();
+
+                        if (rowIndex <= products.size()) {
+                            Map<String, String> product = products.get(rowIndex - 1);
+                            if (cellText.contains("{{book_" + rowIndex + "}}")) {
+                                cell.setText(cellText.replace("{{book_" + rowIndex + "}}", product.get("book_name")));
+                            } else if (cellText.contains("{{price_" + rowIndex + "}}")) {
+                                cell.setText(cellText.replace("{{price_" + rowIndex + "}}", product.get("price")));
+                            } else if (cellText.contains("{{qty_" + rowIndex + "}}")) {
+                                cell.setText(cellText.replace("{{qty_" + rowIndex + "}}", product.get("quantity")));
+                            } else if (cellText.contains("{{total_" + rowIndex + "}}")) {
+                                String total = String.valueOf(Integer.parseInt(product.get("quantity")) * Double.parseDouble(product.get("price")));
+                                cell.setText(cellText.replace("{{total_" + rowIndex + "}}", total));
+                            }
+                        }
+                    }
+                    rowIndex++;
+                }
+            }
+
+            // Lưu file Word đã thay thế
+            try (FileOutputStream fos = new FileOutputStream(outputPath)) {
+                document.write(fos);
+            }
+
+            System.out.println("Hóa đơn đã được xuất ra file: " + outputPath);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void main(String[] args) {
+        // Dữ liệu hóa đơn (ví dụ: tên khách hàng, ngày tháng, v.v.)
+        Map<String, String> invoiceData = new HashMap<>();
+        invoiceData.put("sale_date", "2025-02-14");
+        invoiceData.put("invoice_id", "HD123");
+
+        // Dữ liệu sản phẩm
+        List<Map<String, String>> products = new ArrayList<>();
+        Map<String, String> product1 = new HashMap<>();
+        product1.put("book_name", "Sách Java");
+        product1.put("quantity", "2");
+        product1.put("price", "100000");
+        products.add(product1);
+
+        Map<String, String> product2 = new HashMap<>();
+        product2.put("book_name", "Sách Python");
+        product2.put("quantity", "3");
+        product2.put("price", "120000");
+        products.add(product2);
+
+        // Đường dẫn tới template và file xuất ra
+        String templatePath = "C:\\Users\\KHANH\\Downloads\\template_bill.docx";  // File template .docx có bảng
+        String outputPath = "C:\\Users\\KHANH\\Documents\\HoaDon_123.docx";  // File xuất ra .docx
+
+        // Xuất hóa đơn từ template
+        generateInvoice(templatePath, outputPath, invoiceData, products);
+    }
+}

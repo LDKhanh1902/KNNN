@@ -1,0 +1,162 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class MainView extends JFrame {
+    private JPanel mainPanel, findPanel, headerPanel, infoPanel, bottomPanel;
+
+    public MainView() {
+        // Thiết lập cửa sổ chính
+        setTitle("Dashboard Layout");
+        setSize(1000, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setMinimumSize(new Dimension(1000, 600));
+        setLocationRelativeTo(null);
+
+        // Thay đổi Look and Feel
+        setSystemLookAndFeel();
+
+        // Sử dụng BorderLayout
+        getContentPane().setLayout(new BorderLayout());
+
+        // Main Panel with GridBagLayout
+        mainPanel = new JPanel(new GridBagLayout());
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+
+        // Add components to main panel
+        setupMainPanel();
+
+        // Default view
+        setVisible(true);
+    }
+
+    private void setSystemLookAndFeel() {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setupMainPanel() {
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        // Find Panel
+        findPanel = createSearchPanel();
+        gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.weightx = 1;
+        gbc.weighty = 0.1;
+        mainPanel.add(findPanel, gbc);
+
+        // Header Panel
+        headerPanel = createHeader();
+        gbc = new GridBagConstraints();
+        gbc.gridy = 1;
+        gbc.weighty = 0.2;
+        mainPanel.add(headerPanel, gbc);
+
+        // Info Panel
+        infoPanel = createInfoCards();
+        gbc = new GridBagConstraints();
+        gbc.gridy = 2;
+        gbc.weighty = 0.5;
+        mainPanel.add(infoPanel, gbc);
+
+        // Bottom Panel
+        bottomPanel = createBottomPanel();
+        gbc = new GridBagConstraints();
+        gbc.gridy = 3;
+        gbc.weighty = 0.2;
+        mainPanel.add(bottomPanel, gbc);
+    }
+
+    private JPanel createSearchPanel() {
+        findPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+
+        JLabel searchLabel = new JLabel("Search:");
+        JTextField searchField = new JTextField(20);
+        JButton searchButton = new JButton("Find");
+
+        findPanel.add(searchLabel);
+        findPanel.add(searchField);
+        findPanel.add(searchButton);
+
+        return findPanel;
+    }
+
+    private JPanel createHeader() {
+        headerPanel = new JPanel(new GridLayout(1, 3, 10, 0));
+
+        JPanel monthlyRevenuePanel = new JPanel(new BorderLayout());
+        monthlyRevenuePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        JLabel lblMonthlyRevenue = new JLabel("Doanh thu theo tháng:", SwingConstants.CENTER);
+        JLabel monthlyRevenueLabel = new JLabel("100.000.000", SwingConstants.CENTER);
+        monthlyRevenuePanel.add(lblMonthlyRevenue, BorderLayout.NORTH);
+        monthlyRevenuePanel.add(monthlyRevenueLabel, BorderLayout.CENTER);
+
+        JPanel yearlyRevenuePanel = new JPanel(new BorderLayout());
+        yearlyRevenuePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        JLabel lblYearlyRevenue = new JLabel("Doanh thu theo năm:", SwingConstants.CENTER);
+        JLabel yearlyRevenueLabel = new JLabel("1.200.000.000", SwingConstants.CENTER);
+        yearlyRevenuePanel.add(lblYearlyRevenue, BorderLayout.NORTH);
+        yearlyRevenuePanel.add(yearlyRevenueLabel, BorderLayout.CENTER);
+
+        JPanel userInfoPanel = new JPanel(new BorderLayout());
+        userInfoPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        JLabel userInfoLabel = new JLabel("Xin chào! Nguyễn Văn A", SwingConstants.CENTER);
+        userInfoPanel.add(userInfoLabel, BorderLayout.CENTER);
+
+        headerPanel.add(monthlyRevenuePanel);
+        headerPanel.add(yearlyRevenuePanel);
+        headerPanel.add(userInfoPanel);
+
+        return headerPanel;
+    }
+
+    private JPanel createInfoCards() {
+        infoPanel = new JPanel(new GridLayout(1, 4, 10, 10));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        infoPanel.add(createInfoCard("Số lượng sách: 10"));
+        infoPanel.add(createInfoCard("Số nhân viên: 5"));
+        infoPanel.add(createInfoCard("Số khách hàng: 20"));
+        infoPanel.add(createInfoCard("Số tác giả: 8"));
+
+        return infoPanel;
+    }
+
+    private JPanel createInfoCard(String text) {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout());
+        card.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        card.setBackground(Color.WHITE);
+        card.setPreferredSize(new Dimension(150, 100));
+
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        card.add(label, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    private JPanel createBottomPanel() {
+        bottomPanel = new JPanel();
+        bottomPanel.setLayout(new BorderLayout(0, 0));
+
+        PieChart chartPanel = new PieChart(new String[]{"sach a", "sach b", "sach c"}, new double[]{30, 20, 50});
+        chartPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        chartPanel.setBackground(Color.WHITE);
+
+        bottomPanel.add(chartPanel);
+        return bottomPanel;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(MainView::new);
+    }
+}

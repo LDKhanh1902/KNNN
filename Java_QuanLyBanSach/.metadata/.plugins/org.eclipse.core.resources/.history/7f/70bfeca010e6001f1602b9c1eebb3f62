@@ -1,0 +1,78 @@
+package vn.DA_KNNN.Components;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class ColumnChart extends JPanel {
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private int[] revenues;
+    private String[] months;
+    
+    public ColumnChart() {
+        // Constructor mặc định để hỗ trợ Design mode
+        this.revenues = new int[]{150, 200, 250, 180, 300, 220, 400, 380, 320, 290, 410, 450};
+        this.months = new String[]{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    }
+    
+    public void setData(int[] revenues, String[] months) {
+        this.revenues = revenues;
+        this.months = months;
+        repaint();
+    }
+    
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        Graphics2D g2 = (Graphics2D) g;
+        
+        int width = getWidth();
+        int height = getHeight();
+        int margin = 50;
+        int chartWidth = width - 2 * margin;
+        int chartHeight = height - 2 * margin;
+        int barWidth = chartWidth / revenues.length - 10;
+        
+        int maxRevenue = 500;
+        
+        // Vẽ trục X và Y với mũi tên
+        g2.drawLine(margin, height - margin, width - margin, height - margin);
+        g2.drawLine(margin, height - margin, margin, margin);
+        
+        g2.fillPolygon(new int[]{width - margin, width - margin - 10, width - margin - 10},
+                       new int[]{height - margin, height - margin - 5, height - margin + 5}, 3);
+        g2.drawString("Doanh thu (VND)", height - margin, margin);
+        g2.drawString("Thời điểm (Tháng)", width - margin,height - margin);
+        g2.fillPolygon(new int[]{margin, margin - 5, margin + 5},
+                       new int[]{margin, margin + 10, margin + 10}, 3);
+        
+        // Vẽ cột
+        for (int i = 0; i < revenues.length; i++) {
+            int x = margin + i * (barWidth + 10);
+            int barHeight = (int) ((double) revenues[i] / maxRevenue * chartHeight);
+            int y = height - margin - barHeight;
+            
+            g2.setColor(Color.BLUE);
+            g2.fillRect(x, y, barWidth, barHeight);
+            g2.setColor(Color.BLACK);
+            g2.drawRect(x, y, barWidth, barHeight);
+            
+            g2.drawString(months[i], x + barWidth / 4, height - margin + 15);
+        }
+    }
+    
+    public static void main(String[] args) {
+        int[] revenues = {150, 200, 250, 180, 300, 220, 400, 380, 320, 290, 410, 450};
+        String[] months = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+        
+        JFrame frame = new JFrame("Custom Bar Chart");
+        ColumnChart chart = new ColumnChart();
+        chart.setData(revenues, months);
+        frame.add(chart);
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    }
+}

@@ -1,0 +1,82 @@
+package vn.DA_KNNN.Model;
+
+import java.math.BigDecimal;
+import java.sql.Date;
+
+public class Book {
+	private int bookId; // Mã sách
+	private String title; // Tên sách
+	private String isbn; // Mã ISBN
+	private int publisherId; // Mã nhà xuất bản
+	private int categoryId; // Mã thể loại
+	private Date publicationDate; // Ngày xuất bản
+	private BigDecimal price; // Giá sách
+
+	// Constructor
+	public Book(int bookId, String title, String isbn, int publisherId, int categoryId, Date publicationDate,
+			BigDecimal price) {
+		this.bookId = bookId;
+		this.title = title;
+		this.isbn = isbn;
+		this.publisherId = publisherId;
+		this.categoryId = categoryId;
+		this.publicationDate = publicationDate;
+		this.price = price;
+	}
+
+	public int getBookId() {
+		return bookId;
+	}
+
+	public void setBookId(int bookId) {
+		this.bookId = bookId;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getIsbn() {
+		return isbn;
+	}
+
+	public void setIsbn(String isbn) {
+		this.isbn = isbn;
+	}
+
+	public int getPublisherId() {
+		return publisherId;
+	}
+
+	public void setPublisherId(int publisherId) {
+		this.publisherId = publisherId;
+	}
+
+	public int getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(int categoryId) {
+		this.categoryId = categoryId;
+	}
+
+	public Date getPublicationDate() {
+		return publicationDate;
+	}
+
+	public void setPublicationDate(Date publicationDate) {
+		this.publicationDate = publicationDate;
+	}
+
+	public BigDecimal getPrice() {
+		return price;
+	}
+
+	public void setPrice(BigDecimal price) {
+		this.price = price;
+	}
+}

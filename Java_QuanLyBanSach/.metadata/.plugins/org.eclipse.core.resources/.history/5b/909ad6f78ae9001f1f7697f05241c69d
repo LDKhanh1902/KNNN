@@ -1,0 +1,15 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.nio.file.Paths;
+import java.time.LocalDate;
+
+public class Test {
+
+    public static void main(String[] args) {
+    	String url = Paths.get(System.getProperty("user.home"), "Documents", String.format("\\DOAN_HNNN\\DanhSachNhanVien_%s.xlsx", LocalDate.now())).toString();
+    	System.out.println(url);
+    }
+}

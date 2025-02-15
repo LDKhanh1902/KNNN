@@ -1,0 +1,73 @@
+package vn.DA_KNNN.View;
+
+import java.awt.BorderLayout;
+import java.awt.Font;
+
+import javax.swing.JPanel;
+import javax.swing.UIManager;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import java.awt.GridLayout;
+
+public class BookCatalogView extends JPanel {
+
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Create the panel.
+	 */
+	private JPanel pane;
+	private JButton btnBook,btnCategory,btnAuthor,btnPublisher;
+	
+	public JButton getBtnBook() {
+		return btnBook;
+	}
+
+	public JButton getBtnCategory() {
+		return btnCategory;
+	}
+
+	public JButton getBtnAuthor() {
+		return btnAuthor;
+	}
+
+	public JButton getBtnPublisher() {
+		return btnPublisher;
+	}
+
+	public BookCatalogView() {
+		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		pane = new JPanel(new BoxLayout(this, BoxLayout.X_AXIS));
+		add(pane);
+		pane.setLayout(new GridLayout(2, 2, 0, 0));
+		
+		try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+		
+		btnAuthor = new JButton("Tác giả");
+		btnAuthor.setFont(new Font("Tahoma",ABORT,20));
+		pane.add(btnAuthor);
+		
+		btnBook = new JButton("Sách");
+		btnBook.setFont(new Font("Tahoma",ABORT,20));
+		pane.add(btnBook);
+		
+		btnCategory = new JButton("Thể loại");
+		btnCategory.setFont(new Font("Tahoma",ABORT,20));
+		pane.add(btnCategory);
+		
+		btnPublisher = new JButton("Nhà xuất bản");
+		btnPublisher.setFont(new Font("Tahoma",ABORT,20));
+		pane.add(btnPublisher);
+	}
+	
+	public void showContent(JPanel content) {
+        pane.removeAll(); // Xóa nội dung cũ
+        pane.add(content, BorderLayout.CENTER);
+        revalidate();
+        repaint();
+    }
+}

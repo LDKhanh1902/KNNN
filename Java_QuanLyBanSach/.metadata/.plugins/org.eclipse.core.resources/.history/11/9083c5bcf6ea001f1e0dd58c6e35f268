@@ -1,0 +1,91 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+
+import vn.DA_KNNN.Components.AppHelper;
+
+import java.awt.*;
+
+public class BookCatalogView extends JPanel {
+	private static final long serialVersionUID = 1L;
+
+	private JPanel pane;
+	private JButton btnBook, btnCategory, btnAuthor, btnPublisher;
+
+	public JButton getBtnBook() {
+		return btnBook;
+	}
+
+	public JButton getBtnCategory() {
+		return btnCategory;
+	}
+
+	public JButton getBtnAuthor() {
+		return btnAuthor;
+	}
+
+	public JButton getBtnPublisher() {
+		return btnPublisher;
+	}
+
+	public BookCatalogView() {
+		// Đặt layout chính
+		setLayout(new BorderLayout());
+
+		// Panel chứa nút danh mục sách
+		pane = new JPanel(new GridLayout(2, 2, 10, 10));
+		pane.setForeground(Color.WHITE);
+		pane.setBackground(Color.WHITE);
+		add(pane, BorderLayout.CENTER);
+
+		try {
+			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		// Khởi tạo các nút danh mục
+		btnAuthor = new JButton("Tác giả",AppHelper.setSizeImage("/images/person.png"));
+		btnAuthor.setForeground(Color.WHITE);
+		btnAuthor.setFont(new Font("Tahoma", Font.BOLD, 20));
+		btnAuthor.setBackground(new Color(33, 150, 243));
+		btnAuthor.setOpaque(true);
+		btnAuthor.setBorderPainted(false);
+		pane.add(btnAuthor);
+
+		btnBook = new JButton("Sách",AppHelper.setSizeImage("/images/book.png"));
+		btnBook.setForeground(Color.WHITE);
+		btnBook.setFont(new Font("Tahoma", Font.BOLD, 20));
+		btnBook.setBackground(new Color(76, 175, 80));
+		btnBook.setOpaque(true);
+		btnBook.setBorderPainted(false);
+		pane.add(btnBook);
+
+		btnCategory = new JButton("Thể loại",AppHelper.setSizeImage("/images/category.png"));
+		btnCategory.setForeground(Color.WHITE);
+		btnCategory.setFont(new Font("Tahoma", Font.BOLD, 20));
+		btnCategory.setBackground(new Color(255, 159, 64));
+		btnCategory.setOpaque(true);
+		btnCategory.setBorderPainted(false);
+		pane.add(btnCategory);
+
+		btnPublisher = new JButton("Nhà xuất bản",AppHelper.setSizeImage("/images/publisher.png"));
+		btnPublisher.setForeground(Color.WHITE);
+		btnPublisher.setFont(new Font("Tahoma", Font.BOLD, 20));
+		btnPublisher.setBackground(new Color(158, 158, 158));
+		btnPublisher.setOpaque(true);
+		btnPublisher.setBorderPainted(false);
+		pane.add(btnPublisher);
+	}
+
+	/**
+	 * Hiển thị nội dung mới trong panel
+	 */
+	public void showContent(JPanel content) {
+		pane.removeAll(); // Xóa nội dung cũ
+		pane.setLayout(new BorderLayout()); // Chuyển sang BorderLayout để hiển thị panel con
+		pane.add(content, BorderLayout.CENTER);
+		revalidate();
+		repaint();
+	}
+}

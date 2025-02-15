@@ -1,0 +1,124 @@
+package vn.DA_KNNN.View;
+
+import javax.swing.*;
+import vn.DA_KNNN.Components.PieChart;
+import vn.DA_KNNN.Components.ColumnChart;
+import java.awt.*;
+
+public class MainView extends JPanel {
+    private static final long serialVersionUID = 1L;
+    private JLabel userInfo, bookCountValue, staffCountValue, customerCountValue, revenueValue;
+    private PieChart pieChart;
+    private ColumnChart columnChart;
+
+    public MainView() {
+        setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
+
+        // **Header Panel**
+        JPanel headerPanel = createHeader();
+        add(headerPanel, BorderLayout.NORTH);
+
+        // **Main Content Panel**
+        JPanel mainContent = new JPanel(new BorderLayout());
+        add(mainContent, BorderLayout.CENTER);
+
+        // **Info Panel**
+        JPanel infoPanel = new JPanel(new GridLayout(1, 4, 10, 10));
+        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        mainContent.add(infoPanel, BorderLayout.NORTH);
+
+        // **Book Count Panel**
+        JPanel bookPanel = new JPanel(new GridLayout(2, 1));
+        JLabel bookLabel = new JLabel("📚 Số lượng sách", SwingConstants.CENTER);
+        bookCountValue = new JLabel("120", SwingConstants.CENTER);
+        bookPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        bookPanel.add(bookLabel);
+        bookPanel.add(bookCountValue);
+        infoPanel.add(bookPanel);
+
+        // **Staff Count Panel**
+        JPanel staffPanel = new JPanel(new GridLayout(2, 1));
+        JLabel staffLabel = new JLabel("👥 Số nhân viên", SwingConstants.CENTER);
+        staffCountValue = new JLabel("10", SwingConstants.CENTER);
+        staffPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        staffPanel.add(staffLabel);
+        staffPanel.add(staffCountValue);
+        infoPanel.add(staffPanel);
+
+        // **Customer Count Panel**
+        JPanel customerPanel = new JPanel(new GridLayout(2, 1));
+        JLabel customerLabel = new JLabel("🛍️ Số khách hàng", SwingConstants.CENTER);
+        customerCountValue = new JLabel("250", SwingConstants.CENTER);
+        customerPanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        customerPanel.add(customerLabel);
+        customerPanel.add(customerCountValue);
+        infoPanel.add(customerPanel);
+
+        // **Revenue Panel**
+        JPanel revenuePanel = new JPanel(new GridLayout(2, 1));
+        JLabel revenueLabel = new JLabel("💰 Tổng doanh thu", SwingConstants.CENTER);
+        revenueValue = new JLabel("5.000.000 VNĐ", SwingConstants.CENTER);
+        revenuePanel.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
+        revenuePanel.add(revenueLabel);
+        revenuePanel.add(revenueValue);
+        infoPanel.add(revenuePanel);
+
+        // **Chart Panel**
+        JPanel chartPanel = new JPanel();
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        chartPanel.setLayout(new BoxLayout(chartPanel, BoxLayout.X_AXIS));
+
+        pieChart = new PieChart();
+        columnChart = new ColumnChart();
+        chartPanel.add(pieChart);
+        chartPanel.add(columnChart);
+
+        mainContent.add(chartPanel, BorderLayout.CENTER);
+
+        // **Footer**
+        JPanel footerPanel = createFooter();
+        add(footerPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createHeader() {
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(30, 144, 255));
+        headerPanel.setPreferredSize(new Dimension(getWidth(), 60));
+
+        JLabel title = new JLabel("📚 Hệ thống Quản lý Bán Sách", SwingConstants.CENTER);
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font("Tahoma", Font.BOLD, 18));
+        headerPanel.add(title, BorderLayout.CENTER);
+
+        JPanel userPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 10));
+        userPanel.setOpaque(false);
+        userInfo = new JLabel("👤 Xin chào, Nguyễn Văn A");
+        userInfo.setForeground(Color.WHITE);
+        userInfo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+        userPanel.add(userInfo);
+
+        headerPanel.add(userPanel, BorderLayout.EAST);
+        return headerPanel;
+    }
+
+    private JPanel createFooter() {
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        footerPanel.setPreferredSize(new Dimension(getWidth(), 40));
+        footerPanel.setBackground(new Color(70, 70, 70));
+
+        JLabel footerLabel = new JLabel("© 2025 Hệ thống Quản lý Bán Sách - Nhóm 8");
+        footerLabel.setForeground(Color.WHITE);
+        footerPanel.add(footerLabel);
+
+        return footerPanel;
+    }
+
+    public JLabel getUserInfo() { return userInfo; }
+    public JLabel getBookCountValue() { return bookCountValue; }
+    public JLabel getStaffCountValue() { return staffCountValue; }
+    public JLabel getCustomerCountValue() { return customerCountValue; }
+    public JLabel getRevenueValue() { return revenueValue; }
+    public PieChart getPieChart() { return pieChart; }
+    public ColumnChart getColumnChart() { return columnChart; }
+}
