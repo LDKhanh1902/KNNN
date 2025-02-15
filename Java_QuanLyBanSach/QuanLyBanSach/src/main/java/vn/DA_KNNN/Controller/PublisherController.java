@@ -35,10 +35,10 @@ public class PublisherController {
 		view.getBtnEdit().addActionListener(e -> editPublisher());
 		view.getBtnDelete().addActionListener(e -> deletePublisher());
 		view.getBtnCreateId().addActionListener(e -> createPublisherId());
-		view.getBtnFind().addActionListener(e -> findPublisherData());
-		view.getBtnRefresh().addActionListener(e->{
+		view.getSearchPanel().getBtnSearch().addActionListener(e -> findPublisherData());
+		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
 			clearFields();
-			view.getTxtFind().setText("");
+			view.getSearchPanel().getTxtSearch().setText("");
 		});
 	}
 
@@ -140,8 +140,8 @@ public class PublisherController {
 
 	private void findPublisherData() {
 		// TODO Auto-generated method stub
-		String id = view.getTxtFind().getText();
-		String name = view.getTxtFind().getText();
+		String id = view.getSearchPanel().getTxtSearch().getText();
+		String name = view.getSearchPanel().getTxtSearch().getText();
 
 		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 

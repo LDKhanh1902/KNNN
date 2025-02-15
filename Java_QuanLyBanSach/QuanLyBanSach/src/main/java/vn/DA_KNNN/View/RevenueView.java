@@ -31,8 +31,10 @@ public class RevenueView extends JPanel {
 		// **Panel for ComboBox and PieChart**
 		JPanel piePanel = new JPanel(new BorderLayout(5, 5));
 		comboBox = new JComboBox<>(new String[] { "Tùy chọn 1", "Tùy chọn 2" });
+		comboBox.setPreferredSize(new Dimension(WIDTH, 40));
 		piePanel.add(comboBox, BorderLayout.NORTH);
 		pieChart = new PieChart();
+		pieChart.setTitle("biểu đồ tròn");
 		pieChart.setBackground(Color.WHITE);
 		piePanel.add(pieChart, BorderLayout.CENTER);
 		gridPanel.add(piePanel);
@@ -45,6 +47,9 @@ public class RevenueView extends JPanel {
 
 		// **Line Chart**
 		lineChart = new LineChart();
+		lineChart.setSeries("VND");
+		lineChart.setTitleX("Năm");
+		lineChart.setTitleY("Doanh thu");
 		lineChart.setColumnNames(new String[] {"A", "B", "C", "D"});
 		gridPanel.add(lineChart);
 

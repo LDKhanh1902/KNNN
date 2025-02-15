@@ -5,6 +5,7 @@ import javax.swing.border.TitledBorder;
 
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.ButtonHelper;
+import vn.DA_KNNN.Components.SearchHelper;
 import vn.DA_KNNN.Components.TableHelper;
 
 import java.awt.*;
@@ -15,12 +16,12 @@ public class CategoryView extends JPanel {
 
 	// Khai báo các thành phần giao diện
 	private JLabel lblCategoryId, lblCategoryName, lblCategoryDescription;
-	private JTextField txtCategoryName, txtCategoryId, txtFind;
+	private JTextField txtCategoryName, txtCategoryId;
 	private JTextArea txtCategoryDescription;
 	private JTable categoryTable;
-	private JButton btnAdd, btnEdit, btnDelete, btnCreateId, btnFind, btnRefresh;
+	private JButton btnAdd, btnEdit, btnDelete, btnCreateId;
 	private JPanel panelCategoryId;
-	private JPanel panel;
+	private SearchHelper searchPanel;
 
 	public JTextField getTxtCategoryName() {
 		return txtCategoryName;
@@ -34,8 +35,8 @@ public class CategoryView extends JPanel {
 		return txtCategoryDescription;
 	}
 
-	public JTextField getTxtFind() {
-		return txtFind;
+	public SearchHelper getSearchPanel() {
+		return searchPanel;
 	}
 
 	public JTable getCategoryTable() {
@@ -56,14 +57,6 @@ public class CategoryView extends JPanel {
 
 	public JButton getBtnCreateId() {
 		return btnCreateId;
-	}
-
-	public JButton getBtnFind() {
-		return btnFind;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
 	}
 	
 	public CategoryView() {
@@ -166,22 +159,8 @@ public class CategoryView extends JPanel {
 
 		add(topPanel, BorderLayout.NORTH);
 
-		panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		topPanel.add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-
-		txtFind = new JTextField();
-		txtFind.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		panel.add(txtFind);
-		txtFind.setColumns(10);
-
-		btnFind = new ButtonHelper("Tìm kiếm",AppHelper.setSizeImage("/images/search.png",30,30),new Color(33, 150, 243));
-		btnFind.setText("Tìm");
-		panel.add(btnFind);
-		
-		btnRefresh = new ButtonHelper("",AppHelper.setSizeImage("/images/refresh.png",30,30),new Color(255,255, 255));
-		panel.add(btnRefresh);
+		searchPanel = new SearchHelper();
+		topPanel.add(searchPanel, BorderLayout.SOUTH);
 		add(scrollCategoryTable, BorderLayout.CENTER);
 	}
 

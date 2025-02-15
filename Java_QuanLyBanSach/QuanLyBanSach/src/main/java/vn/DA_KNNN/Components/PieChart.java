@@ -19,6 +19,7 @@ public class PieChart extends JPanel {
 
 	public void setTitle(String title) {
 		this.title = title;
+		updateChart();
 	}
 
 	public int[] getValues() {
@@ -31,10 +32,12 @@ public class PieChart extends JPanel {
 
 	public void setValues(int[] values) {
 		this.values = values;
+		updateChart();
 	}
 
 	public void setColumnNames(String[] columnNames) {
 		this.columnNames = columnNames;
+		updateChart();
 	}
 
 	public PieChart() {
@@ -46,7 +49,8 @@ public class PieChart extends JPanel {
 		setLayout(new BorderLayout());
 
 		// Tạo biểu đồ và thêm vào panel
-		add(createChartPanel(values, columnNames), BorderLayout.CENTER);
+		add(createChartPanel(this.values, "biểu đồ tròn",columnNames), BorderLayout.CENTER);
+		updateChart();
 	}
 
 	public PieChart(String[] columns,int[] values) {
@@ -57,11 +61,11 @@ public class PieChart extends JPanel {
 		setLayout(new BorderLayout());
 
 		// Tạo biểu đồ và thêm vào panel
-		add(createChartPanel(values, columnNames), BorderLayout.CENTER);
+		add(createChartPanel(this.values, "biểu đồ tròn",columnNames), BorderLayout.CENTER);
 		updateChart();
 	}
 	
-	private ChartPanel createChartPanel(int[] values, String[] columnNames) {
+	private ChartPanel createChartPanel(int[] values,String title,String[] columnNames) {
 		// Tạo dataset cho Pie Chart
 		DefaultPieDataset<String> dataset = new DefaultPieDataset<>();
 		for (int i = 0; i < values.length; i++) {
@@ -69,7 +73,7 @@ public class PieChart extends JPanel {
 		}
 
 		// Tạo Pie Chart từ dataset
-		JFreeChart chart = ChartFactory.createPieChart(this.title, // Tên biểu đồ
+		JFreeChart chart = ChartFactory.createPieChart(title, // Tên biểu đồ
 				dataset, // Dữ liệu
 				true, // Chú thích
 				true, // Tooltip
@@ -91,7 +95,7 @@ public class PieChart extends JPanel {
 	
 	public void updateChart() {
 	    removeAll(); // Xóa biểu đồ cũ
-	    add(createChartPanel(values, columnNames), BorderLayout.CENTER); // Thêm biểu đồ mới
+	    add(createChartPanel(values, title,columnNames), BorderLayout.CENTER); // Thêm biểu đồ mới
 	    revalidate();
 	    repaint();
 	}

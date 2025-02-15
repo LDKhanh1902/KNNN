@@ -5,6 +5,7 @@ import javax.swing.border.TitledBorder;
 
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.ButtonHelper;
+import vn.DA_KNNN.Components.SearchHelper;
 import vn.DA_KNNN.Components.TableHelper;
 
 import java.awt.*;
@@ -15,10 +16,11 @@ public class PublisherView extends JPanel {
 
 	// Khai báo các thành phần giao diện
 	private JLabel lblPublisherId, lblPublisherName, lblAddress, lblContact;
-	private JTextField txtPublisherId, txtPublisherName, txtAddress, txtContact, txtFind;
+	private JTextField txtPublisherId, txtPublisherName, txtAddress, txtContact;
 	private JTable publisherTable;
-	private JButton btnAdd, btnEdit, btnDelete, btnFind, btnCreateId, btnRefresh;
-	private JPanel panel, panelPublisherId;
+	private JButton btnAdd, btnEdit, btnDelete, btnCreateId;
+	private JPanel panelPublisherId;
+	private SearchHelper searchPanel;
 
 	public JTextField getTxtPublisherId() {
 		return txtPublisherId;
@@ -36,8 +38,8 @@ public class PublisherView extends JPanel {
 		return txtContact;
 	}
 
-	public JTextField getTxtFind() {
-		return txtFind;
+	public SearchHelper getSearchPanel() {
+		return searchPanel;
 	}
 
 	public JTable getPublisherTable() {
@@ -56,16 +58,8 @@ public class PublisherView extends JPanel {
 		return btnDelete;
 	}
 
-	public JButton getBtnFind() {
-		return btnFind;
-	}
-
 	public JButton getBtnCreateId() {
 		return btnCreateId;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
 	}
 	
 	public PublisherView() {
@@ -182,22 +176,8 @@ public class PublisherView extends JPanel {
 		topPanel.add(inputPanel, BorderLayout.CENTER);
 		topPanel.add(createFunctionPanel(), BorderLayout.EAST);
 
-		panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		topPanel.add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-
-		txtFind = new JTextField();
-		txtFind.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		panel.add(txtFind);
-		txtFind.setColumns(10);
-
-		btnFind = new ButtonHelper("Tìm kiếm",AppHelper.setSizeImage("/images/search.png",30,30),new Color(33, 150, 243));
-		btnFind.setText("Tìm");
-		panel.add(btnFind);
-
-		btnRefresh = new ButtonHelper("",AppHelper.setSizeImage("/images/refresh.png",30,30),new Color(255,255, 255));
-		panel.add(btnRefresh);
+		searchPanel = new SearchHelper();
+		topPanel.add(searchPanel, BorderLayout.SOUTH);
 		
 		add(topPanel, BorderLayout.NORTH);
 		add(scrollTable, BorderLayout.CENTER);

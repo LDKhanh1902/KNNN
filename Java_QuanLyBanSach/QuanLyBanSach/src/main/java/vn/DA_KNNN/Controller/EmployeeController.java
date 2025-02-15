@@ -44,11 +44,11 @@ public class EmployeeController {
 		view.getBtnEdit().addActionListener(e -> editEmployee());
 		view.getBtnDelete().addActionListener(e -> deleteEmployee());
 		view.getBtnCreateId().addActionListener(e -> createEmployeeId());
-		view.getBtnFind().addActionListener(e -> findEmployeeData());
+		view.getSearchPanel().getBtnSearch().addActionListener(e -> findEmployeeData());
 		view.getBtnExport().addActionListener(e->exportListEmployee());
-		view.getBtnRefresh().addActionListener(e->{
+		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
 			clearFields();
-			view.getTxtFind().setText("");
+			view.getSearchPanel().getTxtSearch().setText("");
 		});
 	}
 
@@ -182,8 +182,8 @@ public class EmployeeController {
 
 	private void findEmployeeData() {
 		// TODO Auto-generated method stub
-		String id = view.getTxtFind().getText();
-		String name = view.getTxtFind().getText();
+		String id = view.getSearchPanel().getTxtSearch().getText();
+		String name = view.getSearchPanel().getTxtSearch().getText();
 
 		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 

@@ -1,0 +1,229 @@
+package vn.DA_KNNN.Controller;
+
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import vn.DA_KNNN.Components.AppHelper;
+import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.View.AuthorView;
+
+public class AuthorController {
+	private AuthorView view;
+	private String query = "SELECT `AuthorId` as 'Mã tác giả', `Name` as 'Tên tác giả', `BirthDate` as 'Ngày sinh',"
+			+ "`Nationality` as 'Quóc tịch',(SELECT COUNT(*) FROM book WHERE book.AuthorId = author.AuthorId) AS 'Số tác phẩm'  FROM `author`";
+
+	public AuthorController(AuthorView _view) {
+		this.view = _view;
+
+		setupEventListeners();
+		loadData(query);
+		
+		
+	}
+
+	private void loadData(String sql) {
+		DefaultTableModel model = AppHelper.loadDataTable(sql);
+		tableRowClick(view.getAuthorTable(), model);
+		view.getAuthorTable().setModel(model);
+	}
+
+	private void setupEventListeners() {
+		view.getBtnAdd().addActionListener(e -> addAuthor());
+		view.getBtnEdit().addActionListener(e -> editAuthor());
+		view.getBtnDelete().addActionListener(e -> deleteAuthor());
+		view.getBtnCreateId().addActionListener(e -> createAuthorId());
+		view.getBtnFind().addActionListener(e -> findAuthorData());
+		view.getBtnRefresh().addActionListener(e->{
+			clearFields();
+			view.getTxtFind().setText("");
+		});
+	}
+
+	private void findAuthorData() {
+		String id = view.getTxtFind().getText();
+		String name = view.getTxtFind().getText();
+
+		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
+
+		String sql;
+		if (isNumeric) {
+			sql = query + " WHERE AuthorId = " + id + " OR Name LIKE '%" + name + "%'";
+		} else {
+			sql = query + " WHERE Name LIKE '%" + name + "%'";
+		}
+
+		loadData(sql);
+	}
+
+	/** 🔹 Hàm dùng chung để lấy giá trị duy nhất */
+	private String fetchSingleValue(String sql, String columnName) {
+		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+			if (rs.next()) {
+				return rs.getString(columnName);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+
+	/** ✅ Tạo mã sách tự động */
+	private void createAuthorId() {
+		String nextId = fetchSingleValue("SELECT MAX(AuthorId) + 1 FROM author", "MAX(AuthorId) + 1");
+		view.getTxtAuthorId().setText(nextId);
+	}
+
+	private void deleteAuthor() {
+		if (view.getTxtAuthorId().getText().isEmpty()) {
+			JOptionPane.showMessageDialog(view, "Vui lòng nhập mã sách cần xóa", "Thông báo", JOptionPane.OK_OPTION);
+			return;
+		}
+
+		int confirm = JOptionPane.showConfirmDialog(view, "Bạn có chắc chắn muốn xoá sách này?", "Xác nhận xoá",
+				JOptionPane.YES_NO_OPTION);
+		if (confirm != JOptionPane.YES_OPTION) {
+			return;
+		}
+
+		// ✅ Lấy BookId từ TextField
+		String AuthorId = view.getTxtAuthorId().getText().trim();
+
+		// ✅ Kiểm tra xem bookId là kiểu số hay chuỗi
+		boolean isNumeric = AuthorId.matches("\\d+"); // Kiểm tra nếu chỉ chứa số
+
+		// ✅ Xóa dữ liệu trong Database theo kiểu dữ liệu
+		String sql;
+		if (isNumeric) {
+			sql = String.format("DELETE FROM author WHERE AuthorId = %s", AuthorId); // Nếu BookId là INT
+		} else {
+			sql = String.format("DELETE FROM author WHERE AuthorId = '%s'", AuthorId); // Nếu BookId là VARCHAR
+		}
+
+		if (DataProvider.getInstance().delete(sql)) {
+			JOptionPane.showMessageDialog(view, "Xóa sách thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+			loadData(query);
+			clearFields();
+		} else {
+			JOptionPane.showMessageDialog(view, "Lỗi khi xoá sách!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void editAuthor() {
+		try {
+			// ✅ Lấy dữ liệu từ giao diện
+			String authorId = view.getTxtAuthorId().getText().trim();
+			String authorName = view.getTxtAuthorName().getText().trim();
+			String birthDate = view.getTxtBirthDate().getText().trim();
+			String nationality = view.getTxtNationality().getText().trim();
+
+			// ✅ Kiểm tra dữ liệu đầu vào
+			if (authorId.isEmpty() || authorName.isEmpty() || birthDate.isEmpty() || nationality.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Vui lòng điền đầy đủ thông tin!", "Lỗi",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			// ✅ Kiểm tra xem `AuthorId` có tồn tại không trước khi sửa
+			String existingAuthor = fetchSingleValue("SELECT AuthorId FROM author WHERE AuthorId = '" + authorId + "'",
+					"AuthorId");
+			if (existingAuthor.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Mã tác giả không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			// ✅ Xác nhận cập nhật dữ liệu
+			int confirm = JOptionPane.showConfirmDialog(view, "Bạn có chắc chắn muốn cập nhật thông tin tác giả này?",
+					"Xác nhận cập nhật", JOptionPane.YES_NO_OPTION);
+			if (confirm != JOptionPane.YES_OPTION) {
+				return;
+			}
+
+			// ✅ Cập nhật dữ liệu trong bảng `author`
+			String sql = String.format(
+					"UPDATE author SET Name = '%s', BirthDate = '%s', Nationality = '%s' " + "WHERE AuthorId = '%s'",
+					authorName, birthDate, nationality, authorId);
+
+			if (DataProvider.getInstance().update(sql)) {
+				JOptionPane.showMessageDialog(view, "Cập nhật tác giả thành công!", "Thông báo",
+						JOptionPane.INFORMATION_MESSAGE);
+				loadData(query); // ✅ Cập nhật lại bảng sau khi sửa
+				clearFields(); // ✅ Xóa dữ liệu nhập sau khi sửa
+			} else {
+				JOptionPane.showMessageDialog(view, "Cập nhật tác giả thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(view, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void addAuthor() {
+		try {
+			// ✅ Lấy dữ liệu từ giao diện
+			String authorId = view.getTxtAuthorId().getText().trim();
+			String authorName = view.getTxtAuthorName().getText().trim();
+			String birthDate = view.getTxtBirthDate().getText().trim();
+			String nationality = view.getTxtNationality().getText().trim();
+
+			// ✅ Kiểm tra dữ liệu đầu vào
+			if (authorId.isEmpty() || authorName.isEmpty() || birthDate.isEmpty() || nationality.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Vui lòng điền đầy đủ thông tin!", "Lỗi",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			// ✅ Kiểm tra xem `AuthorId` đã tồn tại chưa
+			String existingAuthor = fetchSingleValue("SELECT AuthorId FROM author WHERE AuthorId = '" + authorId + "'",
+					"AuthorId");
+			if (!existingAuthor.isEmpty()) {
+				JOptionPane.showMessageDialog(view, "Mã tác giả đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+
+			// ✅ Thêm dữ liệu vào bảng `author`
+			String sql = String.format(
+					"INSERT INTO author (AuthorId, Name, BirthDate, Nationality) " + "VALUES ('%s', '%s', '%s', '%s')",
+					authorId, authorName, birthDate, nationality);
+
+			if (DataProvider.getInstance().insert(sql)) {
+				JOptionPane.showMessageDialog(view, "Thêm tác giả thành công!", "Thông báo",
+						JOptionPane.INFORMATION_MESSAGE);
+				loadData(query); // ✅ Cập nhật lại bảng sau khi thêm
+				clearFields(); // ✅ Xóa dữ liệu nhập sau khi thêm
+			} else {
+				JOptionPane.showMessageDialog(view, "Thêm tác giả thất bại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+			}
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			JOptionPane.showMessageDialog(view, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+
+	private void tableRowClick(JTable table, DefaultTableModel model) {
+		table.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				int selectedRow = table.getSelectedRow();
+				if (selectedRow != -1) { // Đảm bảo có hàng được chọn
+					view.getTxtAuthorId().setText(model.getValueAt(selectedRow, 0).toString());
+					view.getTxtAuthorName().setText(model.getValueAt(selectedRow, 1).toString());
+					view.getTxtBirthDate().setText(model.getValueAt(selectedRow, 2).toString());
+					view.getTxtNationality().setText(model.getValueAt(selectedRow, 3).toString());
+				}
+			}
+		});
+	}
+
+	private void clearFields() {
+		view.getTxtAuthorId().setText("");
+		view.getTxtAuthorName().setText("");
+		view.getTxtBirthDate().setText("");
+		view.getTxtNationality().setText("");
+	}
+}

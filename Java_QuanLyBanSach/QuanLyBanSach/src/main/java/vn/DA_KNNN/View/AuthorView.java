@@ -5,6 +5,7 @@ import javax.swing.border.TitledBorder;
 
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.ButtonHelper;
+import vn.DA_KNNN.Components.SearchHelper;
 import vn.DA_KNNN.Components.TableHelper;
 
 import java.awt.*;
@@ -15,14 +16,12 @@ public class AuthorView extends JPanel {
 
 	// Khai báo các thành phần giao diện
 	private JLabel lblAuthorId, lblAuthorName, lblBirthDate, lblNationality;
-	private JTextField txtAuthorName, txtBirthDate, txtNationality, txtFind;
+	private JTextField txtAuthorName, txtBirthDate, txtNationality;
 	private JTable authorTable;
-	private JButton btnAdd, btnEdit, btnDelete, btnFind;
-	private JPanel panel;
+	private JButton btnAdd, btnEdit, btnDelete,btnCreateId;
+	private SearchHelper searchPanel;
 	private JPanel paneAuthorId;
 	private JTextField txtAuthorId;
-	private JButton btnCreateId;
-	private JButton btnRefresh;
 
 	public JTextField getTxtAuthorId() {
 		return txtAuthorId;
@@ -56,20 +55,12 @@ public class AuthorView extends JPanel {
 		return btnDelete;
 	}
 
-	public JButton getBtnFind() {
-		return btnFind;
-	}
-
 	public JButton getBtnCreateId() {
 		return btnCreateId;
 	}
 	
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JTextField getTxtFind() {
-		return txtFind;
+	public SearchHelper getSearchPanel(){
+		return searchPanel;
 	}
 	
 	public AuthorView() {
@@ -186,23 +177,9 @@ public class AuthorView extends JPanel {
 		topPanel.add(createFunctionPanel(), BorderLayout.EAST);
 
 		add(topPanel, BorderLayout.NORTH);
-
-		panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		topPanel.add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-
-		txtFind = new JTextField();
-		txtFind.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		panel.add(txtFind);
-		txtFind.setColumns(10);
-
-		btnFind = new ButtonHelper("Tìm kiếm",AppHelper.setSizeImage("/images/search.png",30,30),new Color(33, 150, 243));
-		btnFind.setText("Tìm");
-		panel.add(btnFind);
 		
-		btnRefresh = new ButtonHelper("",AppHelper.setSizeImage("/images/refresh.png",30,30),new Color(255,255, 255));
-		panel.add(btnRefresh);
+		searchPanel = new SearchHelper();
+		topPanel.add(searchPanel, BorderLayout.SOUTH);
 		add(scrollTable, BorderLayout.CENTER);
 	}
 
@@ -225,5 +202,4 @@ public class AuthorView extends JPanel {
 
 		return functionPanel;
 	}
-
 }

@@ -5,6 +5,7 @@ import javax.swing.border.TitledBorder;
 
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.ButtonHelper;
+import vn.DA_KNNN.Components.SearchHelper;
 import vn.DA_KNNN.Components.TableHelper;
 
 import java.awt.*;
@@ -15,12 +16,13 @@ public class EmployeeView extends JPanel {
 	private JLabel lblEmployeeId, lblFirstName, lblLastName, lblBirthDate, lblHireDate, lblEmail, lblPhoneNumber,
 			lblAddress, lblPositionId , lblCoefficients;
 	private JTextField txtFirstName, txtLastName, txtBirthDate, txtHireDate, txtEmail, txtPhoneNumber, txtAddress,
-			txtEmployeeId, txtFind, txtCoefficients;
-	private JButton btnAdd, btnEdit, btnDelete, btnFind, btnCreateId, btnRefresh;
+			txtEmployeeId, txtCoefficients;
+	private JButton btnAdd, btnEdit, btnDelete, btnCreateId;
 	private JComboBox<String> cmbPositionName;
 	private JTable table;
-	private JPanel panelFind, panelEmployeeId;
+	private JPanel panelEmployeeId;
 	private JButton btnExport;
+	private SearchHelper searchPanel;
 
 	public EmployeeView() {
 		setLayout(new BorderLayout(10, 10));
@@ -38,22 +40,9 @@ public class EmployeeView extends JPanel {
 
 		add(topPanel, BorderLayout.NORTH);
 
-		panelFind = new JPanel();
-		panelFind.setBackground(Color.WHITE);
-		topPanel.add(panelFind, BorderLayout.SOUTH);
-		panelFind.setLayout(new BoxLayout(panelFind, BoxLayout.X_AXIS));
-
-		txtFind = new JTextField();
-		panelFind.add(txtFind);
-		txtFind.setColumns(10);
-
-		btnFind = new ButtonHelper("Tìm kiếm",AppHelper.setSizeImage("/images/search.png",30,30),new Color(33, 150, 243));
-		btnFind.setText("Tìm");
-		panelFind.add(btnFind);
-
-		btnRefresh = new ButtonHelper("",AppHelper.setSizeImage("/images/refresh.png",30,30),new Color(255,255, 255));
-		panelFind.add(btnRefresh);
-		
+		searchPanel = new SearchHelper();
+		topPanel.add(searchPanel, BorderLayout.SOUTH);
+		 
 		// Tạo panel Bảng hiển thị nhân viên
 		JPanel tablePanel = createTablePanel();
 		add(tablePanel, BorderLayout.CENTER);
@@ -211,10 +200,6 @@ public class EmployeeView extends JPanel {
 		return cmbPositionName;
 	}
 
-	public JTextField getTxtFind() {
-		return txtFind;
-	}
-
 	public JButton getBtnAdd() {
 		return btnAdd;
 	}
@@ -226,9 +211,9 @@ public class EmployeeView extends JPanel {
 	public JButton getBtnDelete() {
 		return btnDelete;
 	}
-
-	public JButton getBtnFind() {
-		return btnFind;
+	
+	public SearchHelper getSearchPanel() {
+		return searchPanel;
 	}
 
 	public JButton getBtnExport() {
@@ -237,10 +222,6 @@ public class EmployeeView extends JPanel {
 
 	public JButton getBtnCreateId() {
 		return btnCreateId;
-	}
-
-	public JButton getBtnRefresh() {
-		return btnRefresh;
 	}
 	
 	public JTable getTable() {

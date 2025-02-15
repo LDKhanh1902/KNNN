@@ -39,10 +39,11 @@ public class BookController {
 		view.getBtnEdit().addActionListener(e -> editBook());
 		view.getBtnDelete().addActionListener(e -> deleteBook());
 		view.getBtnCreateId().addActionListener(e -> createBookId());
-		view.getBtnFind().addActionListener(e -> findBookData());
-		view.getBtnRefresh().addActionListener(e->{
+		view.getSearchPanel().getBtnSearch().addActionListener(e -> findBookData());
+		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
 			clearFields();
-			view.getTxtFind().setText("");
+			view.getSearchPanel().getTxtSearch().setText("");
+			loadData(query);
 		});
 	}
 
@@ -253,8 +254,8 @@ public class BookController {
 	}
 
 	private void findBookData() {
-		String id = view.getTxtFind().getText();
-		String name = view.getTxtFind().getText();
+		String id = view.getSearchPanel().getTxtSearch().getText();
+		String name = view.getSearchPanel().getTxtSearch().getText();
 
 		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 

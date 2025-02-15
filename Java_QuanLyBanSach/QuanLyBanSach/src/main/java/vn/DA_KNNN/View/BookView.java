@@ -5,6 +5,7 @@ import javax.swing.border.TitledBorder;
 
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.ButtonHelper;
+import vn.DA_KNNN.Components.SearchHelper;
 import vn.DA_KNNN.Components.TableHelper;
 
 import java.awt.*;
@@ -15,15 +16,13 @@ public class BookView extends JPanel {
 	private JLabel lblBookId, lblBookName, lblEntryDate, lblPublisher, lblPublicationYear, lblQuantity, lblAuthor,
 			lblPrice, lblCategory, lblPurchasePrice;
 	private JTextField txtBookId, txtBookName, txtEntryDate, txtPublicationYear, txtQuantity, txtAuthor, txtPrice,
-			txtPurchasePrice, txtFind;
+			txtPurchasePrice;
 	private JComboBox<String> cmbCategory, cmbPublisher;
-	private JButton btnAdd, btnEdit, btnDelete, btnCreateId, btnFind, btnRefresh;
+	private JButton btnAdd, btnEdit, btnDelete, btnCreateId;
 	private JTable table;
-
+	private SearchHelper searchPanel;
 	private String[] categories;
-
 	private String[] publisher;
-	private JPanel panel;
 
 	public BookView() {
 		setLayout(new BorderLayout(10, 10));
@@ -45,21 +44,8 @@ public class BookView extends JPanel {
 		// Panel bảng hiển thị sách
 		JPanel tablePanel = createTablePanel();
 
-		panel = new JPanel();
-		panel.setBackground(Color.WHITE);
-		topPanel.add(panel, BorderLayout.SOUTH);
-		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-
-		txtFind = new JTextField();
-		txtFind.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		panel.add(txtFind);
-		txtFind.setColumns(10);
-
-		btnFind = new ButtonHelper("Tìm kiếm",AppHelper.setSizeImage("/images/search.png",30,30),new Color(33, 150, 243));
-		btnFind.setText("Tìm");
-		panel.add(btnFind);
-		btnRefresh = new ButtonHelper("",AppHelper.setSizeImage("/images/refresh.png",30,30),new Color(255,255, 255));
-		panel.add(btnRefresh);
+		searchPanel = new SearchHelper();
+		topPanel.add(searchPanel, BorderLayout.SOUTH);
 		
 		add(tablePanel, BorderLayout.CENTER);
 
@@ -217,10 +203,6 @@ public class BookView extends JPanel {
 		return txtPurchasePrice;
 	}
 
-	public JTextField getTxtFind() {
-		return txtFind;
-	}
-
 	public JComboBox<String> getCmbCategory() {
 		return cmbCategory;
 	}
@@ -248,14 +230,6 @@ public class BookView extends JPanel {
 	public JButton getBtnCreateId() {
 		return btnCreateId;
 	}
-	
-	public JButton getBtnRefresh() {
-		return btnRefresh;
-	}
-
-	public JButton getBtnFind() {
-		return btnFind;
-	}
 
 	public String[] getCategories() {
 		return categories;
@@ -275,6 +249,9 @@ public class BookView extends JPanel {
 		updateComboBox(cmbPublisher, publisher);
 	}
 
+	public SearchHelper getSearchPanel() {
+		return searchPanel;
+	}
 	// ==========================
 	// HELPER METHODS
 	// ==========================

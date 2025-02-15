@@ -23,8 +23,6 @@ public class AuthorController {
 
 		setupEventListeners();
 		loadData(query);
-		
-		
 	}
 
 	private void loadData(String sql) {
@@ -38,16 +36,17 @@ public class AuthorController {
 		view.getBtnEdit().addActionListener(e -> editAuthor());
 		view.getBtnDelete().addActionListener(e -> deleteAuthor());
 		view.getBtnCreateId().addActionListener(e -> createAuthorId());
-		view.getBtnFind().addActionListener(e -> findAuthorData());
-		view.getBtnRefresh().addActionListener(e->{
+		view.getSearchPanel().getBtnSearch().addActionListener(e -> findAuthorData());
+		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
 			clearFields();
-			view.getTxtFind().setText("");
+			view.getSearchPanel().getTxtSearch().setText("");
+			loadData(query);
 		});
 	}
 
 	private void findAuthorData() {
-		String id = view.getTxtFind().getText();
-		String name = view.getTxtFind().getText();
+		String id =  view.getSearchPanel().getTxtSearch().getText();
+		String name = view.getSearchPanel().getTxtSearch().getText();
 
 		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 

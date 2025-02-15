@@ -34,16 +34,16 @@ public class CategoryController {
 		view.getBtnEdit().addActionListener(e -> editCategory());
 		view.getBtnDelete().addActionListener(e -> deleteCategory());
 		view.getBtnCreateId().addActionListener(e -> createCategoryId());
-		view.getBtnFind().addActionListener(e -> findCategoryData());
-		view.getBtnRefresh().addActionListener(e->{
+		view.getSearchPanel().getBtnSearch().addActionListener(e -> findCategoryData());
+		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
 			clearFields();
-			view.getTxtFind().setText("");
+			view.getSearchPanel().getTxtSearch().setText("");
 		});
 	}
 
 	private void findCategoryData() {
-		String id = view.getTxtFind().getText();
-		String name = view.getTxtFind().getText();
+		String id = view.getSearchPanel().getTxtSearch().getText();
+		String name = view.getSearchPanel().getTxtSearch().getText();
 
 		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 
