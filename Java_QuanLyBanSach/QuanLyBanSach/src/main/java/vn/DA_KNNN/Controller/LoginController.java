@@ -7,9 +7,11 @@ import java.sql.SQLException;
 
 import javax.swing.JOptionPane;
 
-import vn.DA_KNNN.Model.DataProvider;
-import vn.DA_KNNN.Model.Employee;
-import vn.DA_KNNN.Model.User;
+import vn.DA_KNNN.Components.AppHelper;
+import vn.DA_KNNN.Components.EncodeAESE;
+import vn.DA_KNNN.Model.DTO.DataProvider;
+import vn.DA_KNNN.Model.DTO.Employee;
+import vn.DA_KNNN.Model.DTO.User;
 import vn.DA_KNNN.View.LayoutView;
 import vn.DA_KNNN.View.LoginView;
 
@@ -45,41 +47,34 @@ public class LoginController {
 	}
 
 	public Boolean login(String username, String password) {
-		ResultSet data = DataProvider.getInstance().view("SELECT * FROM `employee` WHERE 1"); // Lấy dữ liệu từ cơ sở dữ
-																								// liệu
+		try (ResultSet data = DataProvider.getInstance().view("SELECT * FROM `employee` WHERE 1")) {
+		    while (data.next()) {
+		        Employee emp = new Employee();
+		        emp.setEmployeeId(data.getInt("EmployeeId"));
+		        emp.setFirstName(data.getString("FirstName"));
+		        emp.setLastName(data.getString("LastName"));
+		        emp.setBirthDate(data.getDate("BirthDate"));
+		        emp.setHireDate(data.getDate("HireDate"));
+		        emp.setEmail(data.getString("Email"));
+		        emp.setPhoneNumber(data.getString("PhoneNumber"));
+		        emp.setAddress(data.getString("Address"));
+		        emp.setPositionId(data.getInt("PositionId"));
+		        emp.setPassword(data.getString("Password"));
 
-		try {
-			while (data.next()) {
-				Employee emp = new Employee(); // Khởi tạo đối tượng Employee
-				emp.setEmployeeId(data.getInt("EmployeeId"));
-				emp.setFirstName(data.getString("FirstName"));
-				emp.setLastName(data.getString("LastName"));
-				emp.setBirthDate(data.getDate("BirthDate"));
-				emp.setHireDate(data.getDate("HireDate"));
-				emp.setEmail(data.getString("Email"));
-				emp.setPhoneNumber(data.getString("PhoneNumber"));
-				emp.setAddress(data.getString("Address"));
-				emp.setPositionId(data.getInt("PositionId"));
-				emp.setPassword(data.getString("Password"));
-
-				// So sánh chuỗi bằng phương thức equals()
-				if (username.equals(emp.getPhoneNumber()) && password.equals(emp.getPassword())) {
-					User.setUser(emp);
-					return true; // Đăng nhập thành công
-				}
-			}
+		        try {
+		            if (username.equals(emp.getPhoneNumber()) && EncodeAESE.encrypt(password, AppHelper.EncodeKey).equals(emp.getPassword())) {
+		            	emp.setPassword(password);
+		                User.setUser(emp);
+		                return true; // Đăng nhập thành công
+		            }
+		        } catch (Exception e) {
+		            e.printStackTrace();
+		        }
+		    }
 		} catch (SQLException e) {
-			e.printStackTrace(); // Xử lý ngoại lệ nếu có
-		} finally {
-			// Đảm bảo đóng ResultSet nếu cần thiết
-			try {
-				if (data != null) {
-					data.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
+		    e.printStackTrace();
 		}
+
 
 		return false; // Đăng nhập không thành công
 	}

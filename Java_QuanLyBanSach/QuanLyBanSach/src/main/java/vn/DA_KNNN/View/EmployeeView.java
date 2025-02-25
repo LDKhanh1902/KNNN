@@ -14,9 +14,9 @@ public class EmployeeView extends JPanel {
 	private static final long serialVersionUID = 1L;
 
 	private JLabel lblEmployeeId, lblFirstName, lblLastName, lblBirthDate, lblHireDate, lblEmail, lblPhoneNumber,
-			lblAddress, lblPositionId , lblCoefficients;
+			lblAddress, lblPositionId;
 	private JTextField txtFirstName, txtLastName, txtBirthDate, txtHireDate, txtEmail, txtPhoneNumber, txtAddress,
-			txtEmployeeId, txtCoefficients;
+			txtEmployeeId;
 	private JButton btnAdd, btnEdit, btnDelete, btnCreateId;
 	private JComboBox<String> cmbPositionName;
 	private JTable table;
@@ -89,10 +89,6 @@ public class EmployeeView extends JPanel {
 		lblPositionId.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		cmbPositionName = new JComboBox<String>();
 		cmbPositionName.setFont(new Font("Tahoma", Font.PLAIN, 20));
-		lblCoefficients = new JLabel("Hệ số lương:");
-		lblCoefficients.setFont(new Font("Tahoma", Font.PLAIN, 16));
-		txtCoefficients = new JTextField();
-		txtCoefficients.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		employeeInfoPanel.add(lblEmployeeId);
 
 		panelEmployeeId = new JPanel();
@@ -123,8 +119,6 @@ public class EmployeeView extends JPanel {
 		employeeInfoPanel.add(txtAddress);
 		employeeInfoPanel.add(lblPositionId);
 		employeeInfoPanel.add(cmbPositionName);
-		employeeInfoPanel.add(lblCoefficients);
-		employeeInfoPanel.add(txtCoefficients);
 		
 		return employeeInfoPanel;
 	}
@@ -237,7 +231,5 @@ public class EmployeeView extends JPanel {
 		repaint();
 	}
 
-	public JTextField getTxtCoefficients() {
-		return txtCoefficients;
-	}
+	
 }

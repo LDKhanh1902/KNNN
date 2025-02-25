@@ -14,7 +14,7 @@ import vn.DA_KNNN.Components.ExcelExporter;
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.LineChart;
 import vn.DA_KNNN.Components.PieChart;
-import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.Model.DTO.DataProvider;
 import vn.DA_KNNN.View.RevenueView;
 
 public class RevenueController {

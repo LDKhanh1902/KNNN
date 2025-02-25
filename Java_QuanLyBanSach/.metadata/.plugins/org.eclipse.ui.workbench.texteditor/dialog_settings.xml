@@ -3,9 +3,9 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<item key="replaceBarOpen" value="true"/>
 	<list key="searchhistory">
+		<item value="Publisher"/>
 		<item value="System"/>
 		<item value="pay"/>
-		<item value="Publisher"/>
 		<item value="Customer"/>
 		<item value="return null;"/>
 		<item value="Book"/>
@@ -20,6 +20,7 @@
 		<item value="cmbCategory"/>
 	</list>
 	<list key="replacehistory">
+		<item value="Book"/>
 		<item value="Customer"/>
 		<item value="Employee"/>
 		<item value="void"/>

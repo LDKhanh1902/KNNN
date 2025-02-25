@@ -1,14 +1,15 @@
 package vn.DA_KNNN.Controller;
 
 import vn.DA_KNNN.Components.AppHelper;
-import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.Model.DTO.DataProvider;
 import vn.DA_KNNN.View.BookView;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.sql.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,9 +17,16 @@ public class BookController {
 	private final BookView view;
 	private String query = "SELECT book.BookId as 'Mã Sách', book.Title as 'Tên sách', author.Name AS 'Tác giả', publisher.PublisherName AS 'Nhà Xuất bản', category.CategoryName as 'Thể loại', "
 			+ "book.PublicationDate as 'Năm xuất bản', book.PurchasePrice as 'Giá nhập', book.Price as 'Giá bán', book.Quantity as 'Số lượng', book.EntryDate as 'Ngày nhập' "
-			+ "FROM book " + "JOIN category ON book.CategoryId = category.CategoryId "
+			+ "FROM book JOIN category ON book.CategoryId = category.CategoryId "
 			+ "JOIN publisher ON book.PublisherId = publisher.PublisherId "
 			+ "JOIN author ON author.AuthorId = book.AuthorId";
+	private final String QUERY_INSERT_BOOK = "INSERT INTO book (BookId, Title, PublisherId, CategoryId, PublicationDate, Price, AuthorId, EntryDate, PurchasePrice, Quantity) VALUES ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')"; 
+	private final String QUERY_UPDATE_BOOK = "UPDATE book SET Title = '%s', AuthorId = (SELECT AuthorId FROM author WHERE Name = '%s'), PublisherId = (SELECT PublisherId FROM publisher WHERE PublisherName = '%s'), CategoryId = (SELECT CategoryId FROM category WHERE CategoryName = '%s'), PublicationDate = '%s', PurchasePrice = '%s', Price = '%s', Quantity = '%s', EntryDate = '%s' WHERE BookId = '%s'"; 
+	private final String QUERY_DELETE_BOOK = "DELETE FROM book WHERE BookId = '%s'"; 
+	private final String QUERY_GET_NEW_BOOK_ID = "SELECT MAX(BookId) + 1 FROM book"; 
+	private final String QUERY_GET_AUTHOR_ID = "SELECT `AuthorId` FROM `author` WHERE `Name` = '%s'";
+	private final String QUERY_GET_CATEGORY_ID = "SELECT CategoryId FROM category WHERE CategoryName = '%s'";
+	private final String QUERY_GET_PUBLISHER_ID = "SELECT PublisherId FROM publisher WHERE PublisherName = '%s'";
 
 	public BookController(BookView _view) {
 		this.view = _view;
@@ -49,20 +57,19 @@ public class BookController {
 
 	/** 🔹 Load dữ liệu thể loại & nhà xuất bản vào combobox */
 	private void loadComboBoxData() {
-		view.setCategories(loadCategories());
-		view.setPublisher(loadPublishers());
+		view.setCategories(getCategories());
+		view.setPublisher(getPublishers());
 	}
-
-	/** ✅ Load danh sách thể loại */
-	private String[] loadCategories() {
+	
+	public String[] getCategories() {
 		return fetchColumnData("SELECT CategoryName FROM category", "CategoryName");
 	}
 
 	/** ✅ Load danh sách nhà xuất bản */
-	private String[] loadPublishers() {
+	public String[] getPublishers() {
 		return fetchColumnData("SELECT PublisherName FROM publisher", "PublisherName");
 	}
-
+	
 	/** 🔹 Hàm dùng chung để lấy dữ liệu từ một cột */
 	private String[] fetchColumnData(String sql, String columnName) {
 		List<String> dataList = new ArrayList<>();
@@ -75,35 +82,7 @@ public class BookController {
 		}
 		return dataList.toArray(new String[0]);
 	}
-
-	/** ✅ Lấy ID của thể loại */
-	private String getCategoryId(JComboBox<String> comboBox) {
-		return fetchSingleValue(
-				"SELECT CategoryId FROM category WHERE CategoryName = '" + comboBox.getSelectedItem().toString() + "'",
-				"CategoryId");
-	}
-
-	/** ✅ Lấy ID của nhà xuất bản */
-	private String getPublisherId(String publisherName) {
-		return fetchSingleValue("SELECT PublisherId FROM publisher WHERE PublisherName = '" + publisherName + "'",
-				"PublisherId");
-	}
-
-	private String getAuthorId(String authorName) {
-		String sql = String.format("SELECT `AuthorId` FROM `author` WHERE `Name` = '%s'", authorName);
-		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
-			if (rs == null)
-				return "";
-			if (rs.next()) {
-				return rs.getString(1);
-			}
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-
+	
 	/** ✅ Thêm sách vào cơ sở dữ liệu */
 	private void addBook() {
 		try {
@@ -116,7 +95,7 @@ public class BookController {
 			String price = view.getTxtPrice().getText();
 			String purchasePrice = view.getTxtPurchasePrice().getText();
 			String publisherId = getPublisherId(view.getCmbPublisher().getSelectedItem().toString());
-			String categoryId = getCategoryId(view.getCmbCategory());
+			String categoryId = getCategoryId(view.getCmbCategory().getSelectedItem().toString());
 			String authorId = getAuthorId(view.getTxtAuthor().getText());
 
 			if (authorId.isEmpty()) {
@@ -132,15 +111,10 @@ public class BookController {
 				return;
 			}
 
-			// Thêm sách vào bảng book
-			String sql = "INSERT INTO book (BookId, Title, PublisherId, CategoryId, PublicationDate, Price, AuthorId, EntryDate, PurchasePrice, Quantity) "
-					+ "VALUES ('" + bookId + "', '" + title + "', '" + publisherId + "', '" + categoryId + "', '"
-					+ publicationDate + "', " + "'" + price + "', '" + authorId + "', '" + entryDate + "', '"
-					+ purchasePrice + "', '" + quantity + "')";
-
+			String sql = String.format(QUERY_INSERT_BOOK, bookId,title,publisherId,categoryId,publicationDate,price,authorId,entryDate,purchasePrice,quantity);
+			
 			if (DataProvider.getInstance().insert(sql)) {
 				JOptionPane.showMessageDialog(view, "Chèn thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-				loadData(query);
 				clearFields();
 			} else {
 				JOptionPane.showMessageDialog(view, "Chèn không thành công!", "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -150,6 +124,7 @@ public class BookController {
 			ex.printStackTrace();
 			JOptionPane.showMessageDialog(view, "Đã xảy ra lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
 		}
+		loadData(query);
 	}
 
 	/** ✅ Chỉnh sửa sách */
@@ -170,24 +145,17 @@ public class BookController {
 		// ✅ Lấy dữ liệu từ các TextField
 		String bookId = view.getTxtBookId().getText();
 		String title = view.getTxtBookName().getText();
-		String author = view.getTxtAuthor().getText();
-		String publisher = view.getCmbPublisher().getSelectedItem().toString();
-		String category = view.getCmbCategory().getSelectedItem().toString();
+		String publisherId = getPublisherId(view.getCmbPublisher().getSelectedItem().toString());
+		String categoryId = getCategoryId(view.getCmbCategory().getSelectedItem().toString());
+		String authorId = getAuthorId(view.getTxtAuthor().getText());
 		String year = view.getTxtPublicationYear().getText();
 		String purchasePrice = view.getTxtPurchasePrice().getText();
 		String price = view.getTxtPrice().getText();
 		String quantity = view.getTxtQuantity().getText();
 		String entryDate = view.getTxtEntryDate().getText();
 
-		// ✅ Tạo câu lệnh SQL UPDATE
-		String sql = String.format(
-				"UPDATE book SET " + "Title = '%s', " + "AuthorId = (SELECT AuthorId FROM author WHERE Name = '%s'), "
-						+ "PublisherId = (SELECT PublisherId FROM publisher WHERE PublisherName = '%s'), "
-						+ "CategoryId = (SELECT CategoryId FROM category WHERE CategoryName = '%s'), "
-						+ "PublicationDate = '%s', " + "PurchasePrice = '%s', " + "Price = '%s', " + "Quantity = '%s', "
-						+ "EntryDate = '%s' " + "WHERE BookId = '%s'",
-				title, author, publisher, category, year, purchasePrice, price, quantity, entryDate, bookId);
-		System.out.println(sql);
+		String sql = String.format(QUERY_UPDATE_BOOK,title,publisherId,categoryId,year,price,authorId,entryDate,purchasePrice,quantity,bookId);
+		
 		// ✅ Cập nhật dữ liệu trong database
 		if (DataProvider.getInstance().update(sql)) {
 			JOptionPane.showMessageDialog(view, "Cập nhật sách thành công!", "Thông báo",
@@ -212,20 +180,10 @@ public class BookController {
 			return;
 		}
 
-		// ✅ Lấy BookId từ TextField
 		String bookId = view.getTxtBookId().getText().trim();
 
-		// ✅ Kiểm tra xem bookId là kiểu số hay chuỗi
-		boolean isNumeric = bookId.matches("\\d+"); // Kiểm tra nếu chỉ chứa số
-
-		// ✅ Xóa dữ liệu trong Database theo kiểu dữ liệu
-		String sql;
-		if (isNumeric) {
-			sql = String.format("DELETE FROM book WHERE BookId = %s", bookId); // Nếu BookId là INT
-		} else {
-			sql = String.format("DELETE FROM book WHERE BookId = '%s'", bookId); // Nếu BookId là VARCHAR
-		}
-
+		String sql = String.format(QUERY_DELETE_BOOK, bookId);
+		
 		if (DataProvider.getInstance().delete(sql)) {
 			JOptionPane.showMessageDialog(view, "Xóa sách thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 			loadData(query);
@@ -235,46 +193,93 @@ public class BookController {
 		}
 	}
 
-	/** 🔹 Hàm dùng chung để lấy giá trị duy nhất */
-	private String fetchSingleValue(String sql, String columnName) {
-		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
-			if (rs.next()) {
-				return rs.getString(columnName);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
+	public String getNewBookId() {
+        // Tạo câu lệnh SQL để lấy ID cuốn sách tiếp theo
+        String sql = QUERY_GET_NEW_BOOK_ID;
+        // Lấy kết quả từ cơ sở dữ liệu
+        ResultSet rs = DataProvider.getInstance().view(sql);
+        try {
+            if (rs.next()) {
+                return rs.getString(1); // Trả về ID cuốn sách tiếp theo
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null; // Nếu không có kết quả, trả về null
+    }
+	
+	// Lấy AuthorId từ tên tác giả
+    public String getAuthorId(String authorName) {
+        // Tạo câu lệnh SQL để lấy AuthorId từ tên tác giả
+        String sql = String.format(QUERY_GET_AUTHOR_ID, authorName);
+        ResultSet rs = DataProvider.getInstance().view(sql);
+        try {
+            if (rs.next()) {
+                return rs.getString("AuthorId"); // Trả về AuthorId nếu tìm thấy
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";  // Nếu không tìm thấy, trả về chuỗi rỗng
+    }
 
+    // Lấy CategoryId từ tên danh mục
+    public String getCategoryId(String categoryName) {
+        // Tạo câu lệnh SQL để lấy CategoryId từ tên danh mục
+        String sql = String.format(QUERY_GET_CATEGORY_ID, categoryName);
+        ResultSet rs = DataProvider.getInstance().view(sql);
+        try {
+            if (rs.next()) {
+                return rs.getString("CategoryId"); // Trả về CategoryId nếu tìm thấy
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";  // Nếu không tìm thấy, trả về chuỗi rỗng
+    }
+    
+    public String getPublisherId(String publisherName) {
+        // Tạo câu lệnh SQL để lấy BookId từ tên nhà xuất bản
+        String sql = String.format(QUERY_GET_PUBLISHER_ID, publisherName);
+        ResultSet rs = DataProvider.getInstance().view(sql);
+        try {
+            if (rs.next()) {
+                return rs.getString("PublisherId"); // Trả về PublisherId nếu tìm thấy
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";  // Nếu không tìm thấy, trả về chuỗi rỗng
+    }
+	
 	/** ✅ Tạo mã sách tự động */
 	private void createBookId() {
-		String nextId = fetchSingleValue("SELECT MAX(BookId) + 1 FROM book", "MAX(BookId) + 1");
+		String nextId = getNewBookId();
 		view.getTxtBookId().setText(nextId);
 	}
 
 	private void findBookData() {
-		String id = view.getSearchPanel().getTxtSearch().getText();
-		String name = view.getSearchPanel().getTxtSearch().getText();
+		String keywork = view.getSearchPanel().getTxtSearch().getText();
+		boolean isNumeric = keywork.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 
-		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
-
-		String sql;
-		if (isNumeric) {
-			sql = query + " WHERE BookId = " + id + " OR Title LIKE '%" + name + "%'";
-		} else {
-			sql = query + " WHERE Title LIKE '%" + name + "%'";
-		}
-
-		loadData(sql);
+        String sql = "";
+        
+        if (isNumeric) {
+            sql = query + " WHERE BookId = " + keywork + " OR Title LIKE '%" + keywork + "%'";
+        } else {
+            sql = query + " WHERE Title LIKE '%" + keywork + "%'";
+        }
+        loadData(sql);
 	}
 
 	private void tableRowClick(JTable table, DefaultTableModel model) {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int selectedRow = table.getSelectedRow();
-				if (selectedRow != -1) { // Đảm bảo có hàng được chọn
+			    int selectedRow = table.getSelectedRow();
+			    int rowCount = model.getRowCount();
+			    
+			    if (selectedRow != -1 && selectedRow < rowCount) { // Ensure row is within bounds
 					view.getTxtBookId().setText(model.getValueAt(selectedRow, 0).toString());
 					view.getTxtBookName().setText(model.getValueAt(selectedRow, 1).toString());
 					view.getTxtAuthor().setText(model.getValueAt(selectedRow, 2).toString());

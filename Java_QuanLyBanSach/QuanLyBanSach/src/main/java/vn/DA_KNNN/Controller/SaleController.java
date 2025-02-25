@@ -2,8 +2,9 @@ package vn.DA_KNNN.Controller;
 
 import vn.DA_KNNN.Components.AppHelper;
 import vn.DA_KNNN.Components.ReceiptExporter;
-import vn.DA_KNNN.Model.DataProvider;
-import vn.DA_KNNN.Model.Payment;
+import vn.DA_KNNN.Model.DTO.DataProvider;
+import vn.DA_KNNN.Model.DTO.Payment;
+import vn.DA_KNNN.Model.DTO.User;
 import vn.DA_KNNN.View.SaleView;
 
 import javax.swing.*;
@@ -12,7 +13,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
 import java.nio.file.Paths;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -28,7 +28,7 @@ public class SaleController {
         setupEventListeners();
     }
 
-    // ✅ Thiết lập các sự kiện cho giao diện
+    // Setup all event listeners for the SaleView
     private void setupEventListeners() {
         view.getSearchField().getDocument().addDocumentListener(new DocumentListener() {
             @Override public void insertUpdate(DocumentEvent e) { searchBook(); }
@@ -44,29 +44,25 @@ public class SaleController {
 
         view.getAddButton().addActionListener(e -> addRowCartTable());
         view.getPayButton().addActionListener(e -> pay());
-        view.getRemoveButton().addActionListener(e-> remove());
+        view.getRemoveButton().addActionListener(e -> remove());
         view.setBookModel(AppHelper.loadDataTable("SELECT `Title`, `Price`, `Quantity` FROM `book`"));
     }
 
+    // Remove selected book from cart
     private void remove() {
         JTable cartTable = view.getCartTable();
-
         int selectedRow = cartTable.getSelectedRow();
         
-        // Kiểm tra nếu không có dòng nào được chọn
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(view, "Vui lòng chọn một sách để xóa khỏi giỏ hàng!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        
-        // Lấy DefaultTableModel của cartTable
+
         DefaultTableModel model = (DefaultTableModel) cartTable.getModel();
-        
-        // Xóa dòng được chọn
         model.removeRow(selectedRow);
     }
 
-	// ✅ Tìm kiếm sách trong cơ sở dữ liệu và cập nhật bảng `bookTable`
+    // Search books in the database and update bookTable
     private void searchBook() {
         String keyword = view.getSearchField().getText();
         String sql = "SELECT `Title` as 'Tên sách', `Price` as 'Giá tiền', `Quantity` as 'Số lượng' FROM `book` WHERE `Title` LIKE '%" + keyword + "%'";
@@ -76,14 +72,14 @@ public class SaleController {
             ResultSetMetaData meta = rs.getMetaData();
             int columnCount = meta.getColumnCount();
 
-            // Lấy tiêu đề cột
+            // Set column headers
             String[] columnNames = new String[columnCount];
             for (int i = 1; i <= columnCount; i++) {
                 columnNames[i - 1] = meta.getColumnLabel(i);
             }
             model.setColumnIdentifiers(columnNames);
 
-            // Lấy dữ liệu từ ResultSet
+            // Fetch data
             while (rs.next()) {
                 Object[] rowData = new Object[columnCount];
                 for (int i = 1; i <= columnCount; i++) {
@@ -98,15 +94,14 @@ public class SaleController {
         view.getBookTable().setModel(model);
     }
 
-    // ✅ Lấy thông tin sách được chọn từ `bookTable`
+    // Fill book info when a book is selected
     private void fillBookInfo() {
         int selectedRow = view.getBookTable().getSelectedRow();
         if (selectedRow >= 0) {
-            view.getQuantityField().setText("1"); // Đặt mặc định số lượng là 1
+            view.getQuantityField().setText("1");  // Default quantity is 1
         }
     }
 
-    // ✅ Thêm sách vào giỏ hàng (`cartTable`)
     private void addRowCartTable() {
         JTable bookTable = view.getBookTable();
         JTable cartTable = view.getCartTable();
@@ -119,7 +114,7 @@ public class SaleController {
 
         // Lấy thông tin sách
         String name = bookTable.getValueAt(selectedRow, 0).toString();
-        double price = Double.parseDouble(bookTable.getValueAt(selectedRow, 1).toString());
+        int price = Integer.parseInt(bookTable.getValueAt(selectedRow, 1).toString());
         int availableQuantity = Integer.parseInt(bookTable.getValueAt(selectedRow, 2).toString());
 
         // Lấy số lượng nhập vào
@@ -138,7 +133,6 @@ public class SaleController {
         DefaultTableModel cartModel = (DefaultTableModel) cartTable.getModel();
         boolean found = false;
 
-        
         // Cập nhật số lượng nếu sách đã có trong giỏ hàng
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             if (cartModel.getValueAt(i, 0).toString().equals(name)) {
@@ -159,9 +153,16 @@ public class SaleController {
         if (!found) {
             cartModel.addRow(new Object[]{name, price, quantity, quantity * price});
         }
+
+        // Tính tổng tiền sau khi thêm dòng mới
+        double grandTotal = calculateGrandTotal(cartModel);
+
+        // Cập nhật tổng tiền vào giao diện
+        view.getTotalPriceLabel().setText(String.format("Tổng tiền: %.0f VNĐ", grandTotal));
+
     }
 
-    // ✅ Xóa toàn bộ dữ liệu trong `cartTable`
+    // Clean cart data
     private void cleanData() {
         DefaultTableModel cartModel = (DefaultTableModel) view.getCartTable().getModel();
         if (cartModel.getRowCount() == 0) {
@@ -174,54 +175,69 @@ public class SaleController {
         JOptionPane.showMessageDialog(view, "Đã xóa toàn bộ giỏ hàng!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    // ✅ Thanh toán và tạo hóa đơn Word
+    // Handle payment and generate invoice
     private void pay() {
         if (view.getCartTable().getRowCount() == 0) {
             JOptionPane.showMessageDialog(view, "Giỏ hàng trống, không thể in hóa đơn!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
-        
-        DefaultTableModel model = (DefaultTableModel)view.getCartTable().getModel();
-        
-        double amount = 0;
-        for (int i = 0; i < model.getRowCount(); i++) {
-        	amount += Double.parseDouble(model.getValueAt(i, 3).toString());
-		}
-        Payment pay = new Payment(amount);
-        DataProvider.getInstance().insert("INSERT INTO `payment`(`PaymentId`, `Amount`, `PaymentDate`) VALUES ("
-        		+ String.format("'%s','%s','%s')",pay.getId(),pay.getAmount(),pay.getPaymentDate().toString()));
-        try {
-			Thread.sleep(3000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        for (int i = 0; i < model.getRowCount(); i++) {
-			String bookId = getBookId(model.getValueAt(i, 0).toString());
-			String price = model.getValueAt(i, 1).toString();
-			String payId = pay.getId();
-			String quantity = model.getValueAt(i, 2).toString();
-			DataProvider.getInstance().insert("INSERT INTO `paydetails`(`BookId`, `PaymentId`, `Quantity`, `price`) VALUES ("
-			+String.format("'%s','%s','%s','%s')", bookId,payId,quantity,price));
-			
-			DataProvider.getInstance().update(String.format("UPDATE `book` SET `Quantity`= %d WHERE `BookId` = '%s'",Integer.parseInt(getBookQuantity(bookId)) - Integer.parseInt(quantity),bookId));
-		}
 
+        DefaultTableModel model = (DefaultTableModel) view.getCartTable().getModel();
+
+        double amount = calculateGrandTotal(model);
+        Payment payment = new Payment(amount);
+        
+        // Insert payment data
+        DataProvider.getInstance().insert(String.format("INSERT INTO `payment`(`PaymentId`, `Amount`, `PaymentDate`, `EmployeeId`) VALUES ('%s', '%s', '%s', %d)", 
+                payment.getId(), payment.getAmount(), payment.getPaymentDate().toString(), User.getUser().getEmployeeId()));
+
+        // Insert payment details and update book quantities
+        for (int i = 0; i < model.getRowCount(); i++) {
+            String bookId = getBookId(model.getValueAt(i, 0).toString());
+            String quantity = model.getValueAt(i, 2).toString();
+            DataProvider.getInstance().insert(String.format("INSERT INTO `paydetails`(`BookId`, `PaymentId`, `Quantity`, `Price`) VALUES ('%s', '%s', '%s', '%s')", 
+                    bookId, payment.getId(), quantity, model.getValueAt(i, 1).toString()));
+            DataProvider.getInstance().update(String.format("UPDATE `book` SET `Quantity`= `Quantity` - %s WHERE `BookId` = '%s'", 
+                    quantity, bookId));
+        }
+
+        // Export the receipt and clean cart
         String templatePath = getClass().getResource("/templates/template_bill.docx").getPath();
-        String outputPath = Paths.get(System.getProperty("user.home"), "Documents", String.format("HoaDon_%s_%s.docx", pay.getId(),LocalDate.now())).toString();
-     // Lấy dữ liệu từ giỏ hàng
-        Map<String, String> invoiceData = getTableData(pay.getId());
-        // Gọi lớp `ReceiptExporter` để tạo hóa đơn Word
-        ReceiptExporter generator = new ReceiptExporter(templatePath);
-        if(generator.generateInvoice(invoiceData, outputPath)){
-        	JOptionPane.showMessageDialog(view, "Thanh toán thành công","Thông báo",JOptionPane.INFORMATION_MESSAGE);
-        	cleanData();
-        }
-        else {
-        	JOptionPane.showMessageDialog(view, "Thanh toán thất bại","Thông báo",JOptionPane.ERROR_MESSAGE);
-        }
+        String outPath = Paths.get(System.getProperty("user.home"), "Documents", String.format("HoaDon_%s_%s.docx", payment.getId(),LocalDate.now())).toString();
+        ReceiptExporter report = new ReceiptExporter(templatePath);
+        report.generateInvoice( getTableData(payment.getId()),outPath);
+        JOptionPane.showMessageDialog(view, "Thanh toán thành công! Hóa đơn đã được in ra.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+        cleanData();
     }
 
+ // Calculate grand total price from cart data
+    private double calculateGrandTotal(DefaultTableModel model) {
+        double grandTotal = 0;
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Object priceObj = model.getValueAt(i, 3); // Get the total price for the row
+            if (priceObj instanceof Integer) {
+                grandTotal += (Integer) priceObj; // Handle Integer case
+            } else if (priceObj instanceof Double) {
+                grandTotal += (Double) priceObj; // Handle Double case
+            }
+        }
+        return grandTotal;
+    }
+    // Get BookId from book title
+    private String getBookId(String title) {
+        String bookId = null;
+        String sql = "SELECT `BookId` FROM `book` WHERE `Title` = '" + title + "'";
+
+        try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+            if (rs.next()) {
+                bookId = rs.getString("BookId");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return bookId;
+    }
+    
     // ✅ Lấy dữ liệu từ giỏ hàng để đưa vào hóa đơn
     private Map<String, String> getTableData(String invoidId) {
         Map<String, String> data = new HashMap<>();
@@ -234,36 +250,13 @@ public class SaleController {
 
         for (int i = 0; i < cartModel.getRowCount(); i++) {
             data.put("book_" + (i + 1), cartModel.getValueAt(i, 0).toString());
-            data.put("price_" + (i + 1), String.format("%.0f", (double)cartModel.getValueAt(i, 1)).toString());
+            data.put("price_" + (i + 1), cartModel.getValueAt(i, 1).toString());
             data.put("qty_" + (i + 1), cartModel.getValueAt(i, 2).toString());
-            data.put("total_" + (i + 1), String.format("%.0f", (double)cartModel.getValueAt(i, 3)).toString());
+            data.put("total_" + (i + 1), cartModel.getValueAt(i, 3).toString());
             grandTotal += Double.parseDouble(cartModel.getValueAt(i, 3).toString());
         }
 
         data.put("grand_total", String.format("%.0f", grandTotal));
         return data;
     }
-    
-    private String getBookId(String name) {
-    	try (ResultSet rs = DataProvider.getInstance().view("SELECT `BookId` FROM `book` WHERE `Title` = '"+name+"'")){
-			if(rs.next())
-				return rs.getString(1);
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-    	return "";
-    }
-    
-    private String getBookQuantity(String id) {
-		try (ResultSet rs = DataProvider.getInstance().view("SELECT `Quantity` FROM `book` WHERE `BookId` = '"+id+"'")){
-			if(rs.next())
-				return rs.getString(1);
-		} catch (Exception e) {
-			// TODO: handle exception
-			e.printStackTrace();
-		}
-    	return "";
-    }
-
 }

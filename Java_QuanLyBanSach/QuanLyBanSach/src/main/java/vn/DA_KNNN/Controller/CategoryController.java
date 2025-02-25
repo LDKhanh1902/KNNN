@@ -10,12 +10,17 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import vn.DA_KNNN.Components.AppHelper;
-import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.Model.DTO.DataProvider;
 import vn.DA_KNNN.View.CategoryView;
 
 public class CategoryController {
 	private CategoryView view;
 	private String query = "SELECT `CategoryId` as 'Mã thể loại', `CategoryName` as 'Tên thể loại', `Description` as 'Mô tả', (SELECT COUNT(*) FROM book WHERE book.CategoryId = category.CategoryId) AS 'Số tác phẩm' FROM category";
+	private final String QUERY_INSERT_CATEGORY = "INSERT INTO category (CategoryId, CategoryName, Description) VALUES ('%s', '%s', '%s')";
+    private final String QUERY_UPDATE_CATEGORY = "UPDATE category SET CategoryName = '%s', Description = '%s' WHERE CategoryId = '%s'";
+    private final String QUERY_DELETE_CATEGORY = "DELETE FROM category WHERE CategoryId = '%s'"; 
+    private final String QUERY_CHECK_CATEGORY_ID = "SELECT CategoryId FROM category WHERE CategoryId = '%s'";
+    private final String QUERY_GET_NEW_CATEGORY_ID = "SELECT MAX(CategoryId) + 1 FROM category";
 
 	public CategoryController(CategoryView _view) {
 		view = _view;
@@ -38,39 +43,50 @@ public class CategoryController {
 		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
 			clearFields();
 			view.getSearchPanel().getTxtSearch().setText("");
+			loadData(query);
 		});
 	}
 
 	private void findCategoryData() {
-		String id = view.getSearchPanel().getTxtSearch().getText();
-		String name = view.getSearchPanel().getTxtSearch().getText();
+		String keywork = view.getSearchPanel().getTxtSearch().getText();
+		
+		boolean isNumeric = keywork.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
 
-		boolean isNumeric = id.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
-
-		String sql;
-		if (isNumeric) {
-			sql = query + " WHERE CategoryId = " + id + " OR CategoryName LIKE '%" + name + "%'";
-		} else {
-			sql = query + " WHERE CategoryName LIKE '%" + name + "%'";
-		}
-
+        String sql = "";
+        if (isNumeric) {
+            sql = "SELECT * FROM category WHERE CategoryId = " + keywork + " OR CategoryName LIKE '%" + keywork + "%'";
+        } else {
+            sql = "SELECT * FROM category WHERE CategoryName LIKE '%" + keywork + "%'";
+        }
+		
 		loadData(sql);
 	}
 
-	/** 🔹 Hàm dùng chung để lấy giá trị duy nhất */
-	private String fetchSingleValue(String sql, String columnName) {
-		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
-			if (rs.next()) {
-				return rs.getString(columnName);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
+	public boolean existingCategory(String categoryId) {
+        String sql = String.format(QUERY_CHECK_CATEGORY_ID, categoryId);
+        try (ResultSet rs = DataProvider.getInstance().view(sql)){
+            if (rs.next()) {
+                return rs.getInt(1) > 0; // Nếu số lượng dòng trả về lớn hơn 0, nghĩa là đã tồn tại
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();  // In lỗi nếu có
+        }
+        return false;  // Trả về false nếu có lỗi hoặc không tìm thấy thể loại
+    }
+	
+	public String getNewCategoryId() {
+        try (ResultSet rs = DataProvider.getInstance().view(QUERY_GET_NEW_CATEGORY_ID)) {
+            if (rs.next()) {
+                return rs.getString(1);  // Trả về ID tiếp theo
+            }
+        } catch (Exception e) {
+            e.printStackTrace();  // In lỗi nếu có
+        }
+        return "";  // Trả về chuỗi rỗng nếu không có kết quả hoặc có lỗi
+    }
 
 	private void createCategoryId() {
-		String nextId = fetchSingleValue("SELECT MAX(CategoryId) + 1 FROM category", "MAX(CategoryId) + 1");
+		String nextId = getNewCategoryId();
 		view.getTxtCategoryId().setText(nextId);
 	}
 
@@ -92,9 +108,8 @@ public class CategoryController {
 				return;
 			}
 
-			// Câu lệnh SQL xóa thể loại
-			String sql = String.format("DELETE FROM category WHERE CategoryId = '%s'", categoryId);
-
+			String sql = String.format(QUERY_DELETE_CATEGORY, categoryId);
+			
 			if (DataProvider.getInstance().delete(sql)) {
 				JOptionPane.showMessageDialog(view, "Xóa thể loại thành công!", "Thông báo",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -128,12 +143,9 @@ public class CategoryController {
 			if (confirm != JOptionPane.YES_OPTION) {
 				return;
 			}
-
-			// Câu lệnh SQL cập nhật thể loại
-			String sql = String.format(
-					"UPDATE category SET CategoryName = '%s', Description = '%s' WHERE CategoryId = '%s'", categoryName,
-					categoryDescription, categoryId);
-
+			
+			String sql = String.format(QUERY_UPDATE_CATEGORY,categoryName,categoryDescription, categoryId);
+			
 			if (DataProvider.getInstance().update(sql)) {
 				JOptionPane.showMessageDialog(view, "Cập nhật thể loại thành công!", "Thông báo",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -161,19 +173,13 @@ public class CategoryController {
 				return;
 			}
 
-			// Kiểm tra xem `CategoryId` đã tồn tại trong cơ sở dữ liệu chưa
-			String existingCategory = fetchSingleValue(
-					"SELECT CategoryId FROM category WHERE CategoryId = '" + categoryId + "'", "CategoryId");
-			if (!existingCategory.isEmpty()) {
+			if (existingCategory(categoryId)) {
 				JOptionPane.showMessageDialog(view, "Mã thể loại đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
-
-			// Câu lệnh SQL thêm thể loại mới
-			String sql = String.format(
-					"INSERT INTO category (CategoryId, CategoryName, Description) VALUES ('%s', '%s', '%s')",
-					categoryId, categoryName, categoryDescription);
-
+			
+			String sql = String.format(QUERY_INSERT_CATEGORY, categoryId,categoryName,categoryDescription);
+			
 			if (DataProvider.getInstance().insert(sql)) {
 				JOptionPane.showMessageDialog(view, "Thêm thể loại thành công!", "Thông báo",
 						JOptionPane.INFORMATION_MESSAGE);
@@ -192,8 +198,10 @@ public class CategoryController {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int selectedRow = table.getSelectedRow();
-				if (selectedRow != -1) { // Đảm bảo có hàng được chọn
+			    int selectedRow = table.getSelectedRow();
+			    int rowCount = model.getRowCount();
+			    
+			    if (selectedRow != -1 && selectedRow < rowCount) { // Ensure row is within bounds
 					view.getTxtCategoryId().setText(model.getValueAt(selectedRow, 0).toString());
 					view.getTxtCategoryName().setText(model.getValueAt(selectedRow, 1).toString());
 					view.getTxtCategoryDescription().setText(model.getValueAt(selectedRow, 2).toString());

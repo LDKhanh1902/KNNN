@@ -1,0 +1,172 @@
+package vn.DA_KNNN.Model.DAO;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import vn.DA_KNNN.Model.DTO.DataProvider;
+
+public class BookDAO {
+
+    // 1. Tạo đối tượng DAO duy nhất (Singleton Pattern)
+    private static BookDAO instance;
+
+    private final String QUERY_INSERT_BOOK = "INSERT INTO book (BookId, Title, PublisherId, CategoryId, PublicationDate, Price, AuthorId, EntryDate, PurchasePrice, Quantity) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private final String QUERY_UPDATE_BOOK = "UPDATE book SET Title = ?, AuthorId = (SELECT AuthorId FROM author WHERE Name = ?), PublisherId = (SELECT PublisherId FROM publisher WHERE PublisherName = ?), CategoryId = (SELECT CategoryId FROM category WHERE CategoryName = ?), PublicationDate = ?, PurchasePrice = ?, Price = ?, Quantity = ?, EntryDate = ? WHERE BookId = ?";
+    private final String QUERY_DELETE_BOOK = "DELETE FROM book WHERE BookId = ?";
+    private final String QUERY_CHECK_BOOK_ID = "SELECT * FROM book WHERE BookId = ?";
+    private final String QUERY_GET_NEW_BOOK_ID = "SELECT MAX(BookId) + 1 FROM book";
+    private final String QUERY_GET_AUTHOR_ID = "SELECT AuthorId FROM author WHERE Name = ?";
+    private final String QUERY_GET_CATEGORY_ID = "SELECT CategoryId FROM category WHERE CategoryName = ?";
+    private final String QUERY_GET_PUBLISHER_ID = "SELECT PublisherId FROM publisher WHERE PublisherName = ?";
+
+    private BookDAO() {}
+
+    // 4. Phương thức tĩnh trả về đối tượng duy nhất BookDAO (Singleton)
+    public static BookDAO getInstance() {
+        if (instance == null) {
+            instance = new BookDAO();  // Tạo đối tượng nếu chưa có
+        }
+        return instance;
+    }
+
+    // Thêm một cuốn sách mới vào cơ sở dữ liệu
+    public boolean insertBook(String bookId, String title, String categoryId, String publicationDate, String price, String authorId, String entryDate, String purchasePrice, String quantity) {
+        String sql = QUERY_INSERT_BOOK;
+        return executeUpdate(sql, bookId, title, categoryId, publicationDate, price, authorId, entryDate, purchasePrice, quantity);
+    }
+
+    // Cập nhật thông tin của cuốn sách
+    public boolean updateBook(String bookId, String title, String author, String publisher, String category, String publicationDate, String purchasePrice, String price, String quantity, String entryDate) {
+        String sql = QUERY_UPDATE_BOOK;
+        return executeUpdate(sql, title, author, publisher, category, publicationDate, purchasePrice, price, quantity, entryDate, bookId);
+    }
+
+    // Xóa một cuốn sách theo ID
+    public boolean deleteBook(String bookId) {
+        String sql = QUERY_DELETE_BOOK;
+        return executeUpdate(sql, bookId);
+    }
+
+    // Kiểm tra xem cuốn sách có tồn tại trong cơ sở dữ liệu hay không
+    public boolean checkBookIdExists(String bookId) {
+        String sql = QUERY_CHECK_BOOK_ID;
+        ResultSet rs = DataProvider.getInstance().view(sql, bookId);
+        try {
+            return rs.next();  // Trả về true nếu có kết quả, tức là sách tồn tại
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Nếu có lỗi xảy ra, trả về false
+        }
+    }
+
+    // Lấy ID của cuốn sách tiếp theo (dùng cho việc tạo ID tự động)
+    public String getNewBookId() {
+        String sql = QUERY_GET_NEW_BOOK_ID;
+        ResultSet rs = DataProvider.getInstance().view(sql);
+        try {
+            if (rs.next()) {
+                return rs.getString(1); // Trả về ID cuốn sách tiếp theo
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "1";  // Giá trị mặc định khi không có kết quả
+    }
+
+    // Lấy AuthorId từ tên tác giả
+    public String getAuthorId(String authorName) {
+        String sql = QUERY_GET_AUTHOR_ID;
+        ResultSet rs = DataProvider.getInstance().view(sql, authorName);
+        try {
+            if (rs.next()) {
+                return rs.getString("AuthorId"); // Trả về AuthorId nếu tìm thấy
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";  // Nếu không tìm thấy, trả về chuỗi rỗng
+    }
+
+    // Lấy CategoryId từ tên danh mục
+    public String getCategoryId(String categoryName) {
+        String sql = QUERY_GET_CATEGORY_ID;
+        ResultSet rs = DataProvider.getInstance().view(sql, categoryName);
+        try {
+            if (rs.next()) {
+                return rs.getString("CategoryId"); // Trả về CategoryId nếu tìm thấy
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";  // Nếu không tìm thấy, trả về chuỗi rỗng
+    }
+
+    // Lấy PublisherId từ tên nhà xuất bản
+    public String getPublisherId(String publisherName) {
+        String sql = QUERY_GET_PUBLISHER_ID;
+        ResultSet rs = DataProvider.getInstance().view(sql, publisherName);
+        try {
+            if (rs.next()) {
+                return rs.getString("PublisherId"); // Trả về PublisherId nếu tìm thấy
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return "";  // Nếu không tìm thấy, trả về chuỗi rỗng
+    }
+
+    // Phương thức tìm kiếm thông qua từ khóa
+    public String getQuerySearch(String query, String keyword) {
+        boolean isNumeric = keyword.matches("\\d+"); // Kiểm tra xem id chỉ chứa số hay không
+        String sql = query;
+
+        if (isNumeric) {
+            sql += " WHERE BookId = ? OR Title LIKE ?";
+        } else {
+            sql += " WHERE Title LIKE ?";
+        }
+
+        return sql;
+    }
+
+    // Hàm dùng chung để thực thi các câu lệnh SQL cập nhật (INSERT, UPDATE, DELETE)
+    private boolean executeUpdate(String sql, Object... params) {
+        try (PreparedStatement pstmt = DataProvider.getInstance().getConnection().prepareStatement(sql)) {
+            // Thiết lập các tham số vào PreparedStatement
+            for (int i = 0; i < params.length; i++) {
+                pstmt.setObject(i + 1, params[i]);
+            }
+            int result = pstmt.executeUpdate();
+            return result > 0;  // Trả về true nếu có ít nhất một bản ghi bị thay đổi
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;  // Trả về false nếu có lỗi xảy ra
+        }
+    }
+
+    /** ✅ Load danh sách thể loại */
+    public String[] getCategories() {
+        return fetchColumnData("SELECT CategoryName FROM category", "CategoryName");
+    }
+
+    /** ✅ Load danh sách nhà xuất bản */
+    public String[] getPublishers() {
+        return fetchColumnData("SELECT PublisherName FROM publisher", "PublisherName");
+    }
+
+    /** 🔹 Hàm dùng chung để lấy dữ liệu từ một cột */
+    private String[] fetchColumnData(String sql, String columnName) {
+        List<String> dataList = new ArrayList<>();
+        try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+            while (rs.next()) {
+                dataList.add(rs.getString(columnName));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dataList.toArray(new String[0]);
+    }
+}

@@ -1,5 +1,8 @@
 package vn.DA_KNNN.Controller;
 
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.ResultSet;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -7,8 +10,10 @@ import java.util.Map;
 
 import vn.DA_KNNN.Components.ColumnChart;
 import vn.DA_KNNN.Components.PieChart;
-import vn.DA_KNNN.Model.DataProvider;
-import vn.DA_KNNN.Model.User;
+import vn.DA_KNNN.Components.PopupMenuHelper;
+import vn.DA_KNNN.Model.DTO.DataProvider;
+import vn.DA_KNNN.Model.DTO.User;
+import vn.DA_KNNN.View.EmployeeInfoView;
 import vn.DA_KNNN.View.MainView;
 
 public class MainController {
@@ -18,7 +23,29 @@ public class MainController {
 		this.view = _view;
 
 		this.view.getUserInfo().setText(User.getName());
+		this.view.getUserInfo().addMouseListener(new MouseAdapter() {
+		    @Override
+		    public void mousePressed(MouseEvent e) { 
+		        showPopup(e); 
+		    }
+		    
+		    @Override
+		    public void mouseReleased(MouseEvent e) { 
+		        showPopup(e); 
+		    }
 
+		    private void showPopup(MouseEvent e) {
+		        if (e.isPopupTrigger()) { // Kiểm tra nếu chuột phải
+		            String[] items = {"Thông tin cá nhân"};
+		            ActionListener[] listeners = {event -> showInfo()}; // Đổi tên tham số lambda từ 'e' sang 'event'
+
+		            // Tạo và hiển thị popup menu
+		            PopupMenuHelper popupMenu = new PopupMenuHelper(items, listeners);
+		            popupMenu.show(e.getComponent(), e.getX(), e.getY()); // Hiển thị popup tại vị trí chuột
+		        }
+		    }
+		});
+		
 		this.view.getBookCountValue().setText(getBookCount());
 
 		this.view.getStaffCountValue().setText(getStaffCount());
@@ -33,7 +60,13 @@ public class MainController {
 		
 		setColumnChart();
 	}
-
+	
+	private void showInfo() {
+		EmployeeInfoView em = new EmployeeInfoView();
+		new EmployeeInfoController(em);
+		em.setVisible(true);
+	}
+	
 	private String getBookCount() {
 		String str = "";
 		try (ResultSet rs = DataProvider.getInstance().view("SELECT COUNT(*) FROM book")) {

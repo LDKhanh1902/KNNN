@@ -91,7 +91,7 @@ public class SaleView extends JPanel {
 		
 		JLabel lblNewLabel_1 = new JLabel("");
 		totalPanel.add(lblNewLabel_1);
-		totalPriceLabel = new JLabel("Tổng tiền: 320000 VNĐ",AppHelper.setSizeImage("/images/money_bag.png",40,40),SwingConstants.RIGHT);
+		totalPriceLabel = new JLabel("Tổng tiền: 0 VNĐ",AppHelper.setSizeImage("/images/money_bag.png",40,40),SwingConstants.RIGHT);
 		totalPriceLabel.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		totalPanel.add(totalPriceLabel);
 		bottomPanel.add(totalPanel, BorderLayout.NORTH);

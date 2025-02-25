@@ -25,7 +25,7 @@ public class LoginView extends JFrame {
 	}
 
 	public LoginView() {
-		ImageIcon icon = new ImageIcon(getClass().getResource("/images/imgIcon.jpeg"));
+		ImageIcon icon = new ImageIcon(getClass().getResource("/images/logo.png"));
 		setIconImage(icon.getImage());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Đăng nhập");

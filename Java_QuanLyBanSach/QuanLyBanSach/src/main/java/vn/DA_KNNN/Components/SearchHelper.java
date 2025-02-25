@@ -6,6 +6,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.Font;
 
 public class SearchHelper extends JPanel{
 	/**
@@ -29,6 +30,7 @@ public class SearchHelper extends JPanel{
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		
 		txtSearch = new JTextField();
+		txtSearch.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		
 		add(txtSearch);
 		add(btnSearch);
@@ -38,7 +40,7 @@ public class SearchHelper extends JPanel{
 	public static void main(String[] args) {
 		JFrame f = new JFrame();
 		SearchHelper s = new SearchHelper();
-		f.add(s);
+		f.getContentPane().add(s);
 
 		
 		f.setVisible(true);

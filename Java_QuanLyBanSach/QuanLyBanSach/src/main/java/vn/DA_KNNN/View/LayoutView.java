@@ -68,13 +68,14 @@ public class LayoutView extends JFrame {
 			e.printStackTrace();
 		}
 
-		ImageIcon icon = new ImageIcon(getClass().getResource("/images/imgIcon.jpeg"));
+		ImageIcon icon = new ImageIcon(getClass().getResource("/images/logo.png"));
 		setIconImage(icon.getImage());
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setTitle("Đăng nhập");
 		setSize(1000, 600);
 		setMinimumSize(new Dimension(1300, 700));
-
+		setLocationRelativeTo(null);
+		
 		getContentPane().setLayout(new BorderLayout());
 		JPanel sidebar = createSidebar();
 		getContentPane().add(sidebar, BorderLayout.WEST);
@@ -92,13 +93,7 @@ public class LayoutView extends JFrame {
 		JPanel sidebar = new JPanel();
 		sidebar.setLayout(new BorderLayout());
 		sidebar.setPreferredSize(new Dimension(200, 0));
-		sidebar.setBackground(new Color(60, 63, 65));
-
-		JLabel titleLabel = new JLabel("QKT", SwingConstants.CENTER);
-		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 36));
-		titleLabel.setForeground(Color.WHITE);
-		titleLabel.setPreferredSize(new Dimension(WIDTH, 100));
-		sidebar.add(titleLabel, BorderLayout.NORTH);
+		sidebar.setBackground(Color.WHITE);
 
 		JPanel buttonPanel = createMenuButtons();
 		sidebar.add(buttonPanel, BorderLayout.CENTER);
@@ -115,6 +110,12 @@ public class LayoutView extends JFrame {
 		btnLogout.setPreferredSize(new Dimension(WIDTH, 50));
 		btnLogout.setFont(new Font("Tahoma", Font.PLAIN, 20));
 		panel.add(btnLogout);
+		
+		JLabel titleLabel = new JLabel("",AppHelper.setSizeImage("/images/logo.png", 100, 100) ,SwingConstants.CENTER);
+		titleLabel.setFont(new Font("Tahoma", Font.BOLD, 36));
+		titleLabel.setForeground(Color.WHITE);
+		titleLabel.setPreferredSize(new Dimension(WIDTH, 100));
+		sidebar.add(titleLabel, BorderLayout.NORTH);
 
 		return sidebar;
 	}

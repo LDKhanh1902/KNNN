@@ -10,11 +10,16 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import vn.DA_KNNN.Components.AppHelper;
-import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.Model.DTO.DataProvider;
 import vn.DA_KNNN.View.AuthorView;
 
 public class AuthorController {
 	private AuthorView view;
+	private final String QUERY_INSERT_AUTHOR = "INSERT INTO author (AuthorId, Name, BirthDate, Nationality) VALUES ('%s', '%s', '%s', '%s')";
+	private final String QUERY_UPDATE_AUTHOR = "UPDATE author SET Name = '%s', BirthDate = '%s', Nationality = '%s' WHERE AuthorId = '%s'";
+	private final String QUERY_DELETE_AUTHOR = "DELETE FROM author WHERE AuthorId = '%s'";
+	private final String QUERY_CHECK_AUTHOR_ID = "SELECT AuthorId FROM author WHERE AuthorId = '%s'";
+	private final String QUERY_GET_NEW_AUTHOR_ID = "SELECT MAX(AuthorId) + 1 FROM author";
 	private String query = "SELECT `AuthorId` as 'Mã tác giả', `Name` as 'Tên tác giả', `BirthDate` as 'Ngày sinh',"
 			+ "`Nationality` as 'Quóc tịch',(SELECT COUNT(*) FROM book WHERE book.AuthorId = author.AuthorId) AS 'Số tác phẩm'  FROM `author`";
 
@@ -37,7 +42,7 @@ public class AuthorController {
 		view.getBtnDelete().addActionListener(e -> deleteAuthor());
 		view.getBtnCreateId().addActionListener(e -> createAuthorId());
 		view.getSearchPanel().getBtnSearch().addActionListener(e -> findAuthorData());
-		view.getSearchPanel().getBtnRefresh().addActionListener(e->{
+		view.getSearchPanel().getBtnRefresh().addActionListener(e -> {
 			clearFields();
 			view.getSearchPanel().getTxtSearch().setText("");
 			loadData(query);
@@ -60,21 +65,20 @@ public class AuthorController {
 		loadData(sql);
 	}
 
-	/** 🔹 Hàm dùng chung để lấy giá trị duy nhất */
-	private String fetchSingleValue(String sql, String columnName) {
-		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
+	public String getNewAuthorId() {
+		try (ResultSet rs = DataProvider.getInstance().view(QUERY_GET_NEW_AUTHOR_ID)) {
 			if (rs.next()) {
-				return rs.getString(columnName);
+				return rs.getString(1); // Trả về ID tiếp theo
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace(); // In lỗi nếu có
 		}
-		return "";
+		return ""; // Trả về chuỗi rỗng nếu không có kết quả hoặc có lỗi
 	}
 
 	/** ✅ Tạo mã sách tự động */
 	private void createAuthorId() {
-		String nextId = fetchSingleValue("SELECT MAX(AuthorId) + 1 FROM author", "MAX(AuthorId) + 1");
+		String nextId = getNewAuthorId();
 		view.getTxtAuthorId().setText(nextId);
 	}
 
@@ -92,18 +96,7 @@ public class AuthorController {
 
 		// ✅ Lấy BookId từ TextField
 		String AuthorId = view.getTxtAuthorId().getText().trim();
-
-		// ✅ Kiểm tra xem bookId là kiểu số hay chuỗi
-		boolean isNumeric = AuthorId.matches("\\d+"); // Kiểm tra nếu chỉ chứa số
-
-		// ✅ Xóa dữ liệu trong Database theo kiểu dữ liệu
-		String sql;
-		if (isNumeric) {
-			sql = String.format("DELETE FROM author WHERE AuthorId = %s", AuthorId); // Nếu BookId là INT
-		} else {
-			sql = String.format("DELETE FROM author WHERE AuthorId = '%s'", AuthorId); // Nếu BookId là VARCHAR
-		}
-
+		String sql = String.format(QUERY_DELETE_AUTHOR, AuthorId);
 		if (DataProvider.getInstance().delete(sql)) {
 			JOptionPane.showMessageDialog(view, "Xóa sách thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 			loadData(query);
@@ -111,6 +104,17 @@ public class AuthorController {
 		} else {
 			JOptionPane.showMessageDialog(view, "Lỗi khi xoá sách!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 		}
+	}
+
+	// 8. Kiểm tra xem tác giả đã tồn tại trong cơ sở dữ liệu chưa
+	public boolean existingAuthor(String authorId) {
+		String sql = String.format(QUERY_CHECK_AUTHOR_ID, authorId);
+		try {
+			return DataProvider.getInstance().view(sql).first(); // Kiểm tra sự tồn tại của tác giả
+		} catch (SQLException e) {
+			e.printStackTrace(); // In lỗi nếu có
+		}
+		return false; // Trả về false nếu có lỗi hoặc không tìm thấy tác giả
 	}
 
 	private void editAuthor() {
@@ -128,10 +132,7 @@ public class AuthorController {
 				return;
 			}
 
-			// ✅ Kiểm tra xem `AuthorId` có tồn tại không trước khi sửa
-			String existingAuthor = fetchSingleValue("SELECT AuthorId FROM author WHERE AuthorId = '" + authorId + "'",
-					"AuthorId");
-			if (existingAuthor.isEmpty()) {
+			if (!existingAuthor(authorId)) {
 				JOptionPane.showMessageDialog(view, "Mã tác giả không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
@@ -143,10 +144,7 @@ public class AuthorController {
 				return;
 			}
 
-			// ✅ Cập nhật dữ liệu trong bảng `author`
-			String sql = String.format(
-					"UPDATE author SET Name = '%s', BirthDate = '%s', Nationality = '%s' " + "WHERE AuthorId = '%s'",
-					authorName, birthDate, nationality, authorId);
+			String sql = String.format(QUERY_UPDATE_AUTHOR, authorName, birthDate, nationality, authorId);
 
 			if (DataProvider.getInstance().update(sql)) {
 				JOptionPane.showMessageDialog(view, "Cập nhật tác giả thành công!", "Thông báo",
@@ -177,18 +175,12 @@ public class AuthorController {
 				return;
 			}
 
-			// ✅ Kiểm tra xem `AuthorId` đã tồn tại chưa
-			String existingAuthor = fetchSingleValue("SELECT AuthorId FROM author WHERE AuthorId = '" + authorId + "'",
-					"AuthorId");
-			if (!existingAuthor.isEmpty()) {
+			if (existingAuthor(authorId)) {
 				JOptionPane.showMessageDialog(view, "Mã tác giả đã tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 				return;
 			}
 
-			// ✅ Thêm dữ liệu vào bảng `author`
-			String sql = String.format(
-					"INSERT INTO author (AuthorId, Name, BirthDate, Nationality) " + "VALUES ('%s', '%s', '%s', '%s')",
-					authorId, authorName, birthDate, nationality);
+			String sql = String.format(QUERY_INSERT_AUTHOR, authorId, authorName, birthDate, nationality);
 
 			if (DataProvider.getInstance().insert(sql)) {
 				JOptionPane.showMessageDialog(view, "Thêm tác giả thành công!", "Thông báo",
@@ -209,13 +201,16 @@ public class AuthorController {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				int selectedRow = table.getSelectedRow();
-				if (selectedRow != -1) { // Đảm bảo có hàng được chọn
+				int rowCount = model.getRowCount();
+
+				if (selectedRow != -1 && selectedRow < rowCount) { // Ensure row is within bounds
 					view.getTxtAuthorId().setText(model.getValueAt(selectedRow, 0).toString());
 					view.getTxtAuthorName().setText(model.getValueAt(selectedRow, 1).toString());
 					view.getTxtBirthDate().setText(model.getValueAt(selectedRow, 2).toString());
 					view.getTxtNationality().setText(model.getValueAt(selectedRow, 3).toString());
 				}
 			}
+
 		});
 	}
 

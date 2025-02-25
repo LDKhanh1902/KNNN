@@ -8,9 +8,11 @@ import java.sql.SQLException;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
-import vn.DA_KNNN.Model.DataProvider;
+import vn.DA_KNNN.Model.DTO.DataProvider;
 
 public class AppHelper{
+	
+	public static String EncodeKey = "1234567890123456";
 	
 	public static ImageIcon setSizeImage(String url) {
     	ImageIcon icon = new ImageIcon(AppHelper.class.getResource(url));
@@ -32,12 +34,6 @@ public class AppHelper{
 	public static DefaultTableModel loadDataTable(String sql) {
 		DefaultTableModel model = new DefaultTableModel();
 		try (ResultSet rs = DataProvider.getInstance().view(sql)) {
-			String[] columns = { "Mã tác giả", "Tên tác giả" };
-
-			if (rs == null) {
-				return new DefaultTableModel(columns, 0);
-			}
-
 			ResultSetMetaData meta = rs.getMetaData();
 			int columnCount = meta.getColumnCount();
 			// ✅ Khởi tạo và lấy tên cột từ metadata
@@ -62,4 +58,6 @@ public class AppHelper{
 
 		return model;
 	}
+	
+
 }

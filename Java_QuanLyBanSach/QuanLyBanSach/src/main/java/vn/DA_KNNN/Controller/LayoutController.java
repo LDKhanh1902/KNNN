@@ -6,8 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 
-import vn.DA_KNNN.Model.User;
+import vn.DA_KNNN.Model.DTO.Role;
+import vn.DA_KNNN.Model.DTO.User;
 import vn.DA_KNNN.View.BookCatalogView;
 import vn.DA_KNNN.View.EmployeeView;
 import vn.DA_KNNN.View.LayoutView;
@@ -24,7 +26,6 @@ public class LayoutController {
 		this.layout = _layout;
 		
 		layout.getBtnHome().addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
@@ -35,9 +36,12 @@ public class LayoutController {
 		});
 
 		layout.getBtnBook().addActionListener(new ActionListener() {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(User.isWarehouseKeeper()) {
+					JOptionPane.showMessageDialog(layout,"Không thể thực hiện","Thông báo",JOptionPane.WARNING_MESSAGE);
+					return;
+				}
 				// TODO Auto-generated method stub
 				BookCatalogView view = new BookCatalogView();
 				new BookCatalogController(view);
@@ -55,6 +59,10 @@ public class LayoutController {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				if(!User.isAdmin()) {
+					JOptionPane.showMessageDialog(layout,"Không thể thực hiện","Thông báo",JOptionPane.WARNING_MESSAGE);
+					return;
+				}
 				// TODO Auto-generated method stub
 				EmployeeView view = new EmployeeView();
 				new EmployeeController(view);
@@ -63,6 +71,10 @@ public class LayoutController {
 		});
 
 		layout.getBtnRevenue().addActionListener(e -> {
+			if(!User.isAdmin()) {
+				JOptionPane.showMessageDialog(layout,"Không thể thực hiện" + Role.checkRoleById(User.getUser().getPositionId()),"Thông báo",JOptionPane.WARNING_MESSAGE);
+				return;
+			}
 			RevenueView view = new RevenueView();
 			new RevenueController(view);
 			layout.showContent(view);

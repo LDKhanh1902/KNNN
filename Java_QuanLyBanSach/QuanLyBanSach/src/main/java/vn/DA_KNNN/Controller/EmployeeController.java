@@ -1,5 +1,7 @@
 package vn.DA_KNNN.Controller;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.nio.file.Paths;
@@ -14,8 +16,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import vn.DA_KNNN.Components.ExcelExporter;
+import vn.DA_KNNN.Model.DTO.DataProvider;
 import vn.DA_KNNN.Components.AppHelper;
-import vn.DA_KNNN.Model.DataProvider;
 import vn.DA_KNNN.View.EmployeeView;
 
 public class EmployeeController {
@@ -30,6 +32,16 @@ public class EmployeeController {
 		setupEventListeners();
 		view.setCmbPositionName(loadPositionName());
 		loadData(query+" ORDER BY `EmployeeId` ;");
+		view.getSearchPanel().getBtnRefresh().addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				clearFields();
+				view.getSearchPanel().getTxtSearch().setText("");
+				loadData(query);
+			}
+		});
 	}
 
 	private void loadData(String sql) {
@@ -90,11 +102,12 @@ public class EmployeeController {
 		if (DataProvider.getInstance().insert(sql)) {
 			JOptionPane.showMessageDialog(view, "Thêm nhân viên thành công", "Thông báo",
 					JOptionPane.INFORMATION_MESSAGE);
-			loadData(query); // Làm mới dữ liệu bảng
+			
 			clearFields(); // Xóa các trường nhập liệu
 		} else {
 			JOptionPane.showMessageDialog(view, "Thêm nhân viên thất bại", "Thông báo", JOptionPane.ERROR_MESSAGE);
 		}
+		loadData(query); // Làm mới dữ liệu bảng
 	}
 
 	private void editEmployee() {
@@ -221,8 +234,10 @@ public class EmployeeController {
 		table.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				int selectedRow = table.getSelectedRow();
-				if (selectedRow != -1) { // Đảm bảo có hàng được chọn
+			    int selectedRow = table.getSelectedRow();
+			    int rowCount = model.getRowCount();
+			    
+			    if (selectedRow != -1 && selectedRow < rowCount) { // Ensure row is within bounds
 					view.getTxtEmployeeId().setText(model.getValueAt(selectedRow, 0).toString()); // Mã nhân viên
 					view.getTxtFirstName().setText(model.getValueAt(selectedRow, 1).toString()); // Tên
 					view.getTxtLastName().setText(model.getValueAt(selectedRow, 2).toString()); // Họ
